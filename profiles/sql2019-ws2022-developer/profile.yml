@@ -1,0 +1,12 @@
+profile_id: sql2019-ws2022-developer
+os_family: windows
+source_image_urn: MicrosoftSQLServer:sql2019-ws2022:sqldev-gen2:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-sql2019-ws2022-developer-gen2
+  publisher: DerekColeman
+  offer: sql2019-ws2022
+  sku: sqldev-gen2
+test:
+  vm_size: Standard_D4as_v5

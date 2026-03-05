@@ -1,0 +1,12 @@
+profile_id: sql2025-ws2025-standard
+os_family: windows
+source_image_urn: MicrosoftSQLServer:sql2025-ws2025:standard-gen2:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-sql2025-ws2025-standard-gen2
+  publisher: DerekColeman
+  offer: sql2025-ws2025
+  sku: standard-gen2
+test:
+  vm_size: Standard_D4as_v5
