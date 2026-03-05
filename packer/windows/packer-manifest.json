@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "name": "image",
+      "builder_type": "azure-arm",
+      "build_time": 1772733042,
+      "files": null,
+      "artifact_id": "/subscriptions/f4085274-4e9d-4e93-8360-67a4be900d81/resourceGroups/RG-PACKER-IMAGE-FACTORY-EASTUS/providers/Microsoft.Compute/images/ws2022-datacenter-20260307",
+      "packer_run_uuid": "5e41a604-8119-0ee7-985d-f7cada587036",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "5e41a604-8119-0ee7-985d-f7cada587036"
+}

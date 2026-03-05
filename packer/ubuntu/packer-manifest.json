@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "name": "image",
+      "builder_type": "azure-arm",
+      "build_time": 1772730503,
+      "files": null,
+      "artifact_id": "/subscriptions/f4085274-4e9d-4e93-8360-67a4be900d81/resourceGroups/RG-PACKER-IMAGE-FACTORY-EASTUS/providers/Microsoft.Compute/images/ubuntu-server-20260307",
+      "packer_run_uuid": "dd916ec9-6491-57ef-7936-aa310a78034c",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "dd916ec9-6491-57ef-7936-aa310a78034c"
+}
