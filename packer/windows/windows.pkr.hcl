@@ -25,10 +25,7 @@ variable "gallery_name" { type = string }
 variable "image_definition" { type = string }
 variable "image_version" { type = string }
 variable "replication_regions" { type = list(string) }
-variable "winrm_password" {
-  type      = string
-  sensitive = true
-}
+
 variable "azure_tags" {
   type    = map(string)
   default = {}
@@ -51,8 +48,7 @@ source "azure-arm" "image" {
   winrm_use_ssl  = true
   winrm_insecure = true
   winrm_timeout  = "10m"
-  winrm_username = "azureuser"
-  winrm_password = var.winrm_password
+  winrm_username = "packer"
 
   azure_tags = var.azure_tags
 

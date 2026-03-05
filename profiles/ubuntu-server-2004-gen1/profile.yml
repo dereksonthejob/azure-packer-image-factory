@@ -1,0 +1,11 @@
+profile_id: ubuntu-server-20.04-gen1
+os_family: linux
+os_line: ubuntu-server
+source_image_urn: Canonical:0001-com-ubuntu-server-focal:20_04-lts:latest
+gallery:
+  image_definition: imgdef-ubuntu-server-2004
+  publisher: DerekColeman
+  offer: ubuntu-server
+  sku: 20_04-lts
+test:
+  vm_size: Standard_D2ads_v6

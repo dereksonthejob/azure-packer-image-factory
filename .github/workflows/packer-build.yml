@@ -97,7 +97,7 @@ jobs:
           
           if [ "$OS_FAMILY" == "windows" ]; then
             TEMPLATE_FILE="packer/windows/windows.pkr.hcl"
-            EXTRA_VARS=( "-var" "vm_admin_password=${{ secrets.IMAGE_TEST_VM_ADMIN_PASSWORD }}" )
+            EXTRA_VARS=()
           elif [ "$OS_FAMILY" == "linux" ]; then
             TEMPLATE_FILE="packer/ubuntu/ubuntu.pkr.hcl"
             EXTRA_VARS=()
