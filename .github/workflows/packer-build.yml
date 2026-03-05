@@ -93,15 +93,20 @@ jobs:
         run: |
           set -e
           
-          if [[ "${{ steps.profile.outputs.os_family }}" == "windows" ]]; then
-            TEMPLATE_FILE="packer/windows.pkr.hcl"
-            EXTRA_VARS=(-var "winrm_password=FakePassword123!")
-          else
-            TEMPLATE_FILE="packer/ubuntu.pkr.hcl"
+          OS_FAMILY="${{ steps.profile.outputs.os_family }}"
+          
+          if [ "$OS_FAMILY" == "windows" ]; then
+            TEMPLATE_FILE="packer/windows/windows.pkr.hcl"
+            EXTRA_VARS=( "-var" "vm_admin_password=${{ secrets.IMAGE_TEST_VM_ADMIN_PASSWORD }}" )
+          elif [ "$OS_FAMILY" == "linux" ]; then
+            TEMPLATE_FILE="packer/ubuntu/ubuntu.pkr.hcl"
             EXTRA_VARS=()
+          else
+            echo "Unsupported OS family: $OS_FAMILY"
+            exit 1
           fi
 
-          packer init "packer"
+          packer init "$TEMPLATE_FILE"
           
           packer build \
             -var "profile_id=${{ steps.profile.outputs.profile_id }}" \
