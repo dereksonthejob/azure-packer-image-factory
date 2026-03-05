@@ -38,4 +38,10 @@ Write-Host "------------------------------------------------"
 Get-MpComputerStatus | Select-Object -Property AMServiceEnabled, AntispywareEnabled, AntivirusEnabled, BehaviorMonitorEnabled, RealTimeProtectionEnabled | Out-String | Write-Host
 Write-Host "------------------------------------------------"
 
+Write-Host "------------------------------------------------"
+Write-Host "RUNNING DEFENDER QUICK SCAN:"
+Write-Host "------------------------------------------------"
+Start-MpScan -ScanType QuickScan | Out-String | Write-Host
+Write-Host "------------------------------------------------"
+
 Write-Host "Security Check and Defender Install Complete."
