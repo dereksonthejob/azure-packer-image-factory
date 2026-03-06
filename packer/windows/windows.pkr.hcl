@@ -4,6 +4,10 @@ packer {
       source  = "github.com/hashicorp/azure"
       version = ">= 2.0.0"
     }
+    windows-update = {
+      version = ">= 0.14.3"
+      source  = "github.com/rgl/windows-update"
+    }
   }
 }
 
@@ -72,6 +76,15 @@ build {
     scripts = [
       "${path.root}/../../scripts/security-update-check-windows.ps1"
     ]
+  }
+
+  provisioner "windows-update" {
+    search_criteria = "IsInstalled=0"
+    filters = [
+      "exclude:$_.Title -like '*Preview*'",
+      "include:$true"
+    ]
+    update_limit = 25
   }
 
   provisioner "powershell" {
