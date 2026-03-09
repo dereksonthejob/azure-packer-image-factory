@@ -34,7 +34,7 @@ jobs:
   build:
     name: Build Image ${{ matrix.profile }}
     needs: discover-profiles
-    runs-on: ${{ inputs.runs_on_pool || 'arc-general-runners' }}
+    runs-on: "${{ inputs.runs_on_pool || 'arc-general-runners' }}"
     continue-on-error: true
     strategy:
       fail-fast: false
