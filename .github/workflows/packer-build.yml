@@ -18,7 +18,7 @@ on:
       runs_on_pool:
         description: 'Runner pool to use'
         required: false
-        default: 'arc-general-runners'
+        default: 'vmss'
         type: string
 
 permissions:
@@ -32,7 +32,7 @@ concurrency:
 jobs:
   build:
     name: Build and Publish Packer Image
-    runs-on: ${{ inputs.runs_on_pool }}
+    runs-on: [self-hosted, "${{ inputs.runs_on_pool || 'vmss' }}"]
     steps:
       - uses: actions/checkout@v4
 
