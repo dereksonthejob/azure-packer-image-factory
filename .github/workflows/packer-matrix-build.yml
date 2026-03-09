@@ -38,7 +38,7 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 15
       matrix:
         profile: ${{ fromJson(needs.discover-profiles.outputs.matrix) }}
     steps:
