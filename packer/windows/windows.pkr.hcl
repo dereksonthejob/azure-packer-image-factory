@@ -41,7 +41,7 @@ variable "azure_tags" {
 
 source "azure-arm" "image" {
   use_azure_cli_auth = true
-  location           = var.location
+  location                          = var.location
 
   os_type                           = "Windows"
   image_publisher                   = var.source_image_publisher
@@ -51,6 +51,7 @@ source "azure-arm" "image" {
   vm_size                           = var.vm_size
   managed_image_name                = var.managed_image_name
   managed_image_resource_group_name = var.build_resource_group_name
+  build_resource_group_name         = var.build_resource_group_name
 
   communicator   = "winrm"
   winrm_use_ssl  = true

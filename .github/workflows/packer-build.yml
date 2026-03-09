@@ -170,13 +170,13 @@ jobs:
         if: always()
         shell: bash
         run: |
-          echo "Scanning for and deleting orphaned Packer Resource Groups..."
-          # Packer typically names the temp RG 'pkr-Resource-Group-*'
-          STRANDED_RGS=$(az group list --query "[?starts_with(name, 'pkr-Resource-Group-')].name" -o tsv)
-          for rg in $STRANDED_RGS; do
-            echo "Deleting stranded Resource Group: $rg"
-            az group delete --name "$rg" --yes --no-wait || echo "Failed to delete $rg"
-          done
+          echo "Scanning for and deleting orphaned Packer resources in the build RG..."
+          IDS=$(az resource list --resource-group RG-PACKER-IMAGE-FACTORY-EASTUS --query "[?starts_with(name, 'pkr')].id" -o tsv)
+          if [ -n "$IDS" ]; then
+            for id in $IDS; do
+              az resource delete --ids "$id" --no-wait || true
+            done
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
