@@ -1,0 +1,14 @@
+2026-03-09T20:48:34.3546370Z [36;1mif ! command -v az &> /dev/null; then[0m
+2026-03-09T20:48:34.3548386Z [36;1m  echo "Installing Azure CLI..."[0m
+2026-03-09T20:48:34.3550947Z [36;1m  curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash[0m
+2026-03-09T20:48:34.3553598Z [36;1mfi[0m
+2026-03-09T20:48:34.3586363Z shell: /usr/bin/bash -e {0}
+2026-03-09T20:48:34.3587539Z ##[endgroup]
+2026-03-09T20:48:34.3665256Z Installing Azure CLI...
+2026-03-09T20:48:34.3750752Z sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper
+2026-03-09T20:48:34.3755205Z sudo: a password is required
+2026-03-09T20:48:34.7224103Z ##[error]Process completed with exit code 1.
+2026-03-09T20:48:34.7460131Z ##[group]Run echo "Packer Build Failed for profiles/debian-12-server. Extracting error tail..."
+2026-03-09T20:48:34.7462809Z [36;1mecho "Packer Build Failed for profiles/debian-12-server. Extracting error tail..."[0m
+2026-03-09T20:48:34.7464473Z [36;1mmkdir -p evidence/failures[0m
+2026-03-09T20:48:34.7465795Z [36;1mtail -n 50 packerbuild.log > "evidence/failures/failed-.txt"[0m
