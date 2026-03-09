@@ -70,13 +70,11 @@ jobs:
       - name: Ensure CLI Prerequisites
         run: |
           if ! command -v az &> /dev/null; then
-            echo "Waiting for asynchronous Azure VM provisioning (CustomScript) to finish installing az..."
-            timeout 300 bash -c 'until command -v az &> /dev/null; do sleep 5; echo "Waiting..."; done'
-            if ! command -v az &> /dev/null; then
-              echo "Error: Azure CLI was not installed in time."
-              exit 1
-            fi
-            echo "Azure CLI is ready."
+            echo "Installing Azure CLI locally using Python pip (rootless)..."
+            curl -sS https://bootstrap.pypa.io/get-pip.py | python3 - --user
+            export PATH="$HOME/.local/bin:$PATH"
+            python3 -m pip install --user azure-cli
+            echo "$HOME/.local/bin" >> $GITHUB_PATH
             az --version
           fi
 
