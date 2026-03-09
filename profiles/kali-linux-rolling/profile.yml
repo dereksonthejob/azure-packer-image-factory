@@ -1,0 +1,13 @@
+profile_id: kali-linux-rolling
+os_family: linux
+os_line: kali-linux
+source_image_urn: kali-linux:kali:kali-2025-1d:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-kali-linux-rolling-gen2
+  publisher: dcassociatesgroup-com
+  offer: kali
+  sku: kali-2025-1d
+test:
+  vm_size: Standard_D2ads_v6

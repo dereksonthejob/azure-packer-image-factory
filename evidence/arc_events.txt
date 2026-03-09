@@ -1,0 +1,32 @@
+command started at 2026-03-09 04:07:13+00:00, finished at 2026-03-09 04:07:14+00:00 with exitcode=0
+39s         Normal    Created       pod/arc-general-runners-77675f8b-listener   Created container: listener
+39s         Normal    Started       pod/arc-general-runners-77675f8b-listener   Started container listener
+34s         Normal    Scheduled     pod/arc-general-runners-77675f8b-listener   Successfully assigned arc-system/arc-general-runners-77675f8b-listener to aks-general-34717483-vmss000000
+34s         Normal    Pulled        pod/arc-general-runners-77675f8b-listener   Container image "ghcr.io/actions/gha-runner-scale-set-controller:0.13.1" already present on machine
+34s         Normal    Created       pod/arc-general-runners-77675f8b-listener   Created container: listener
+34s         Normal    Started       pod/arc-general-runners-77675f8b-listener   Started container listener
+29s         Normal    Scheduled     pod/arc-general-runners-77675f8b-listener   Successfully assigned arc-system/arc-general-runners-77675f8b-listener to aks-general-34717483-vmss000000
+29s         Normal    Pulled        pod/arc-general-runners-77675f8b-listener   Container image "ghcr.io/actions/gha-runner-scale-set-controller:0.13.1" already present on machine
+29s         Normal    Created       pod/arc-general-runners-77675f8b-listener   Created container: listener
+29s         Normal    Started       pod/arc-general-runners-77675f8b-listener   Started container listener
+24s         Normal    Scheduled     pod/arc-general-runners-77675f8b-listener   Successfully assigned arc-system/arc-general-runners-77675f8b-listener to aks-general-34717483-vmss000000
+24s         Normal    Pulled        pod/arc-general-runners-77675f8b-listener   Container image "ghcr.io/actions/gha-runner-scale-set-controller:0.13.1" already present on machine
+24s         Normal    Created       pod/arc-general-runners-77675f8b-listener   Created container: listener
+24s         Normal    Started       pod/arc-general-runners-77675f8b-listener   Started container listener
+19s         Normal    Scheduled     pod/arc-general-runners-77675f8b-listener   Successfully assigned arc-system/arc-general-runners-77675f8b-listener to aks-general-34717483-vmss000000
+19s         Normal    Pulled        pod/arc-general-runners-77675f8b-listener   Container image "ghcr.io/actions/gha-runner-scale-set-controller:0.13.1" already present on machine
+19s         Normal    Created       pod/arc-general-runners-77675f8b-listener   Created container: listener
+19s         Normal    Started       pod/arc-general-runners-77675f8b-listener   Started container listener
+13s         Normal    Scheduled     pod/arc-general-runners-77675f8b-listener   Successfully assigned arc-system/arc-general-runners-77675f8b-listener to aks-general-34717483-vmss000000
+14s         Normal    Pulled        pod/arc-general-runners-77675f8b-listener   Container image "ghcr.io/actions/gha-runner-scale-set-controller:0.13.1" already present on machine
+14s         Normal    Created       pod/arc-general-runners-77675f8b-listener   Created container: listener
+14s         Normal    Started       pod/arc-general-runners-77675f8b-listener   Started container listener
+8s          Normal    Scheduled     pod/arc-general-runners-77675f8b-listener   Successfully assigned arc-system/arc-general-runners-77675f8b-listener to aks-general-34717483-vmss000000
+9s          Normal    Pulled        pod/arc-general-runners-77675f8b-listener   Container image "ghcr.io/actions/gha-runner-scale-set-controller:0.13.1" already present on machine
+9s          Normal    Created       pod/arc-general-runners-77675f8b-listener   Created container: listener
+9s          Normal    Started       pod/arc-general-runners-77675f8b-listener   Started container listener
+3s          Normal    Scheduled     pod/arc-general-runners-77675f8b-listener   Successfully assigned arc-system/arc-general-runners-77675f8b-listener to aks-general-34717483-vmss000000
+4s          Normal    Pulled        pod/arc-general-runners-77675f8b-listener   Container image "ghcr.io/actions/gha-runner-scale-set-controller:0.13.1" already present on machine
+4s          Normal    Created       pod/arc-general-runners-77675f8b-listener   Created container: listener
+4s          Normal    Started       pod/arc-general-runners-77675f8b-listener   Started container listener
+

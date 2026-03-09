@@ -1,0 +1,13 @@
+profile_id: rhel-server-810
+os_family: linux
+os_line: rhel
+source_image_urn: RedHat:RHEL:810-gen2:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-rhel-server-810-gen2
+  publisher: dcassociatesgroup-com
+  offer: RHEL
+  sku: 810-gen2
+test:
+  vm_size: Standard_D2ads_v6

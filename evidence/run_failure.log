@@ -1,0 +1,126 @@
+Map Image Profiles	Set up job	﻿2026-03-09T04:56:15.1581483Z Current runner version: '2.332.0'
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1605778Z ##[group]Runner Image Provisioner
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1606658Z Hosted Compute Agent
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1607201Z Version: 20260213.493
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1607725Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1608446Z Build Date: 2026-02-13T00:28:41Z
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1609034Z Worker ID: {0e38f82c-fa45-4c21-b3e6-33b6b6e05f01}
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1609695Z Azure Region: northcentralus
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1610240Z ##[endgroup]
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1611708Z ##[group]Operating System
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1612262Z Ubuntu
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1612773Z 24.04.3
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1613443Z LTS
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1613886Z ##[endgroup]
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1614427Z ##[group]Runner Image
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1614928Z Image: ubuntu-24.04
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1615410Z Version: 20260302.42.1
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1616277Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260302.42/images/ubuntu/Ubuntu2404-Readme.md
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1617876Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260302.42
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1618791Z ##[endgroup]
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1619702Z ##[group]GITHUB_TOKEN Permissions
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1621532Z Contents: read
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1622180Z Metadata: read
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1622662Z ##[endgroup]
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1624668Z Secret source: Actions
+Map Image Profiles	Set up job	2026-03-09T04:56:15.1625836Z Prepare workflow directory
+Map Image Profiles	Set up job	2026-03-09T04:56:15.2030128Z Prepare all required actions
+Map Image Profiles	Set up job	2026-03-09T04:56:15.2079769Z Getting action download info
+Map Image Profiles	Set up job	2026-03-09T04:56:15.5440740Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+Map Image Profiles	Set up job	2026-03-09T04:56:15.7747149Z Complete job name: Map Image Profiles
+Map Image Profiles	Run actions/checkout@v4	﻿2026-03-09T04:56:15.8496853Z ##[group]Run actions/checkout@v4
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8497600Z with:
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8498183Z   repository: Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8498993Z   token: ***
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8499351Z   ssh-strict: true
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8499711Z   ssh-user: git
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8500060Z   persist-credentials: true
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8500454Z   clean: true
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8500801Z   sparse-checkout-cone-mode: true
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8501221Z   fetch-depth: 1
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8501566Z   fetch-tags: false
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8501924Z   show-progress: true
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8502277Z   lfs: false
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8502600Z   submodules: false
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8503171Z   set-safe-directory: true
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.8503799Z ##[endgroup]
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9534808Z Syncing repository: Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9536595Z ##[group]Getting Git version info
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9537421Z Working directory is '/home/runner/work/azure-packer-image-factory/azure-packer-image-factory'
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9538500Z [command]/usr/bin/git version
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9613717Z git version 2.53.0
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9637211Z ##[endgroup]
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9656533Z Temporarily overriding HOME='/home/runner/work/_temp/fdeb07c0-d8e9-4338-ae57-e5a08f5bd24c' before making global git config changes
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9657791Z Adding repository directory to the temporary git global config as a safe directory
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9661336Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/azure-packer-image-factory/azure-packer-image-factory
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9697486Z Deleting the contents of '/home/runner/work/azure-packer-image-factory/azure-packer-image-factory'
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9700377Z ##[group]Initializing the repository
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9704620Z [command]/usr/bin/git init /home/runner/work/azure-packer-image-factory/azure-packer-image-factory
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9804462Z hint: Using 'master' as the name for the initial branch. This default branch name
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9805836Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9806739Z hint: to use in all of your new repositories, which will suppress this warning,
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9808074Z hint: call:
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9808660Z hint:
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9809210Z hint: 	git config --global init.defaultBranch <name>
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9809780Z hint:
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9810317Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9811134Z hint: 'development'. The just-created branch can be renamed via this command:
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9811798Z hint:
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9812180Z hint: 	git branch -m <name>
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9812777Z hint:
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9813543Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9814625Z Initialized empty Git repository in /home/runner/work/azure-packer-image-factory/azure-packer-image-factory/.git/
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9818877Z [command]/usr/bin/git remote add origin https://github.com/Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9849526Z ##[endgroup]
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9850244Z ##[group]Disabling automatic garbage collection
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9854178Z [command]/usr/bin/git config --local gc.auto 0
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9882800Z ##[endgroup]
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9883755Z ##[group]Setting up auth
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9889775Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:15.9918012Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.0262080Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.0291697Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.0524917Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.0557708Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.0790838Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.0824779Z ##[endgroup]
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.0826010Z ##[group]Fetching the repository
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.0834383Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +9d372d2f4359804147e51991e3a1159b3cffde4f:refs/remotes/origin/master
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3252109Z From https://github.com/Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3253963Z  * [new ref]         9d372d2f4359804147e51991e3a1159b3cffde4f -> origin/master
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3286771Z ##[endgroup]
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3287947Z ##[group]Determining the checkout info
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3289370Z ##[endgroup]
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3295096Z [command]/usr/bin/git sparse-checkout disable
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3338624Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3366596Z ##[group]Checking out the ref
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3371274Z [command]/usr/bin/git checkout --progress --force -B master refs/remotes/origin/master
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3453364Z Reset branch 'master'
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3456967Z branch 'master' set up to track 'origin/master'.
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3463603Z ##[endgroup]
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3497688Z [command]/usr/bin/git log -1 --format=%H
+Map Image Profiles	Run actions/checkout@v4	2026-03-09T04:56:16.3521422Z 9d372d2f4359804147e51991e3a1159b3cffde4f
+Map Image Profiles	Run PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')	﻿2026-03-09T04:56:16.3721856Z ##[group]Run PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')
+Map Image Profiles	Run PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')	2026-03-09T04:56:16.3723476Z [36;1mPROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')[0m
+Map Image Profiles	Run PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')	2026-03-09T04:56:16.3724419Z [36;1mecho "Discovered Profiles: $PROFILES"[0m
+Map Image Profiles	Run PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')	2026-03-09T04:56:16.3725242Z [36;1mecho "matrix=$PROFILES" >> "$GITHUB_OUTPUT"[0m
+Map Image Profiles	Run PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')	2026-03-09T04:56:16.3776271Z shell: /usr/bin/bash -e {0}
+Map Image Profiles	Run PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')	2026-03-09T04:56:16.3776726Z ##[endgroup]
+Map Image Profiles	Run PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')	2026-03-09T04:56:16.4252540Z Discovered Profiles: ["profiles/sql2017-ws2019-developer-gen2","profiles/sql2017-ws2019-enterprise-gen2","profiles/sql2017-ws2019-standard-gen2","profiles/sql2017-ws2019-web-gen2","profiles/sql2019-ws2019-developer-gen2","profiles/sql2019-ws2019-enterprise-gen2","profiles/sql2019-ws2019-standard-gen2","profiles/sql2019-ws2019-web-gen2","profiles/sql2019-ws2022-developer","profiles/sql2019-ws2022-developer-gen1","profiles/sql2019-ws2022-enterprise","profiles/sql2019-ws2022-enterprise-gen1","profiles/sql2019-ws2022-enterprisedbengineonly-gen2","profiles/sql2019-ws2022-standard","profiles/sql2019-ws2022-standard-gen1","profiles/sql2019-ws2022-web","profiles/sql2019-ws2022-web-gen2","profiles/sql2022-ws2022","profiles/sql2022-ws2022-developer","profiles/sql2022-ws2022-enterprise","profiles/sql2022-ws2022-standard","profiles/sql2022-ws2022-web-gen2","profiles/sql2025-ws2025-developer","profiles/sql2025-ws2025-enterprise","profiles/sql2025-ws2025-standard","profiles/ubuntu-server","profiles/ubuntu-server-2004","profiles/ubuntu-server-2004-gen1","profiles/ubuntu-server-2204-minimal","profiles/ubuntu-server-2204-minimal-gen1","profiles/ubuntu-server-2404-gen1","profiles/ubuntu-server-2404-minimal","profiles/ubuntu-server-2404-minimal-gen1","profiles/windows-server","profiles/windows-server-2022","profiles/windows-server-2022-gen1","profiles/windows-server-gen1"]
+Map Image Profiles	Post Run actions/checkout@v4	﻿2026-03-09T04:56:16.4373291Z Post job cleanup.
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5272131Z [command]/usr/bin/git version
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5307972Z git version 2.53.0
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5350802Z Temporarily overriding HOME='/home/runner/work/_temp/c380c562-87a6-4219-9fde-b141f8912bc0' before making global git config changes
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5352138Z Adding repository directory to the temporary git global config as a safe directory
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5356352Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/azure-packer-image-factory/azure-packer-image-factory
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5394278Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5428141Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5684037Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5706442Z http.https://github.com/.extraheader
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5723914Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.5760489Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.6014284Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Map Image Profiles	Post Run actions/checkout@v4	2026-03-09T04:56:16.6046135Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Map Image Profiles	Complete job	﻿2026-03-09T04:56:16.6399076Z Evaluate and set job outputs
+Map Image Profiles	Complete job	2026-03-09T04:56:16.6431325Z Set output 'matrix'
+Map Image Profiles	Complete job	2026-03-09T04:56:16.6434653Z Cleaning up orphan processes

@@ -1,0 +1,67 @@
+command started at 2026-03-09 02:43:57+00:00, finished at 2026-03-09 02:43:58+00:00 with exitcode=0
+Name:             arc-general-runners-77675f8b-listener
+Namespace:        arc-system
+Priority:         0
+Service Account:  arc-general-runners-77675f8b-listener
+Node:             aks-general-34717483-vmss000002/10.10.1.170
+Start Time:       Mon, 09 Mar 2026 02:43:57 +0000
+Labels:           actions.github.com/organization=Derek-Coleman-Associates-Corporation
+                  actions.github.com/scale-set-name=arc-general-runners
+                  actions.github.com/scale-set-namespace=arc-runners
+                  app.kubernetes.io/component=runner-scale-set-listener
+                  app.kubernetes.io/instance=arc-general-runners
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=arc-general-runners
+                  app.kubernetes.io/part-of=gha-runner-scale-set
+                  app.kubernetes.io/version=0.13.1
+                  helm.sh/chart=gha-rs-0.13.1
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    AutoscalingListener/arc-general-runners-77675f8b-listener
+Containers:
+  listener:
+    Container ID:  
+    Image:         ghcr.io/actions/gha-runner-scale-set-controller:0.13.1
+    Image ID:      
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /ghalistener
+    State:          Waiting
+      Reason:       ContainerCreating
+    Ready:          False
+    Restart Count:  0
+    Environment:
+      LISTENER_CONFIG_PATH:  /etc/gha-listener/config.json
+    Mounts:
+      /etc/gha-listener from listener-config (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hllcz (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  listener-config:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  arc-general-runners-77675f8b-listener-config
+    Optional:    false
+  kube-api-access-hllcz:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  0s    default-scheduler  Successfully assigned arc-system/arc-general-runners-77675f8b-listener to aks-general-34717483-vmss000002
+

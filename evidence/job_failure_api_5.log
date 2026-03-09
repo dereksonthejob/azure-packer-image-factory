@@ -1,0 +1,345 @@
+﻿2026-03-09T05:06:20.8232841Z Current runner version: '2.332.0'
+2026-03-09T05:06:20.8239584Z Runner name: 'ghrnr000000'
+2026-03-09T05:06:20.8240508Z Runner group name: 'default'
+2026-03-09T05:06:20.8241330Z Machine name: 'ghrnr000000'
+2026-03-09T05:06:20.8244072Z ##[group]GITHUB_TOKEN Permissions
+2026-03-09T05:06:20.8246538Z Contents: read
+2026-03-09T05:06:20.8247134Z Metadata: read
+2026-03-09T05:06:20.8247646Z ##[endgroup]
+2026-03-09T05:06:20.8250224Z Secret source: Actions
+2026-03-09T05:06:20.8251275Z Prepare workflow directory
+2026-03-09T05:06:20.8710878Z Prepare all required actions
+2026-03-09T05:06:20.8767544Z Getting action download info
+2026-03-09T05:06:21.1900531Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-03-09T05:06:21.3939945Z Download action repository 'azure/login@v2' (SHA:a457da9ea143d694b1b9c7c869ebb04ebe844ef5)
+2026-03-09T05:06:21.5819273Z Download action repository 'hashicorp/setup-packer@v3' (SHA:1aa358be5cf73883762b302a3a03abd66e75b232)
+2026-03-09T05:06:21.7573675Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-03-09T05:06:22.1614080Z Complete job name: Build Image profiles/sql2019-ws2019-standard-gen2
+2026-03-09T05:06:22.2506665Z ##[group]Run actions/checkout@v4
+2026-03-09T05:06:22.2508025Z with:
+2026-03-09T05:06:22.2509514Z   repository: Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+2026-03-09T05:06:22.2511368Z   token: ***
+2026-03-09T05:06:22.2512146Z   ssh-strict: true
+2026-03-09T05:06:22.2512941Z   ssh-user: git
+2026-03-09T05:06:22.2513759Z   persist-credentials: true
+2026-03-09T05:06:22.2514668Z   clean: true
+2026-03-09T05:06:22.2515483Z   sparse-checkout-cone-mode: true
+2026-03-09T05:06:22.2516478Z   fetch-depth: 1
+2026-03-09T05:06:22.2517286Z   fetch-tags: false
+2026-03-09T05:06:22.2518109Z   show-progress: true
+2026-03-09T05:06:22.2519068Z   lfs: false
+2026-03-09T05:06:22.2519820Z   submodules: false
+2026-03-09T05:06:22.2520648Z   set-safe-directory: true
+2026-03-09T05:06:22.2521854Z ##[endgroup]
+2026-03-09T05:06:22.3634322Z Syncing repository: Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+2026-03-09T05:06:22.3637472Z ##[group]Getting Git version info
+2026-03-09T05:06:22.3639785Z Working directory is '/home/runner/actions-runner/_work/azure-packer-image-factory/azure-packer-image-factory'
+2026-03-09T05:06:22.3642427Z [command]/usr/bin/git version
+2026-03-09T05:06:22.3643378Z git version 2.34.1
+2026-03-09T05:06:22.3655281Z ##[endgroup]
+2026-03-09T05:06:22.3671412Z Temporarily overriding HOME='/home/runner/actions-runner/_work/_temp/3d8b5eb9-a797-4b10-8a27-f2bd4f98bbc8' before making global git config changes
+2026-03-09T05:06:22.3674987Z Adding repository directory to the temporary git global config as a safe directory
+2026-03-09T05:06:22.3679120Z [command]/usr/bin/git config --global --add safe.directory /home/runner/actions-runner/_work/azure-packer-image-factory/azure-packer-image-factory
+2026-03-09T05:06:22.3713719Z [command]/usr/bin/git config --local --get remote.origin.url
+2026-03-09T05:06:22.3733222Z https://github.com/Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+2026-03-09T05:06:22.3749266Z ##[group]Removing previously created refs, to avoid conflicts
+2026-03-09T05:06:22.3753161Z [command]/usr/bin/git rev-parse --symbolic-full-name --verify --quiet HEAD
+2026-03-09T05:06:22.3771302Z refs/heads/master
+2026-03-09T05:06:22.3780069Z [command]/usr/bin/git checkout --detach
+2026-03-09T05:06:22.3918455Z HEAD is now at fb0a5a3 feat: add untracked ubuntu profiles for 22.04 and 24.04 server
+2026-03-09T05:06:22.3960695Z [command]/usr/bin/git branch --delete --force master
+2026-03-09T05:06:22.3985762Z Deleted branch master (was fb0a5a3).
+2026-03-09T05:06:22.4020286Z ##[endgroup]
+2026-03-09T05:06:22.4021529Z [command]/usr/bin/git submodule status
+2026-03-09T05:06:22.4233048Z ##[group]Cleaning the repository
+2026-03-09T05:06:22.4236691Z [command]/usr/bin/git clean -ffdx
+2026-03-09T05:06:22.4270731Z [command]/usr/bin/git reset --hard HEAD
+2026-03-09T05:06:22.4303472Z HEAD is now at fb0a5a3 feat: add untracked ubuntu profiles for 22.04 and 24.04 server
+2026-03-09T05:06:22.4309491Z ##[endgroup]
+2026-03-09T05:06:22.4311723Z ##[group]Disabling automatic garbage collection
+2026-03-09T05:06:22.4313673Z [command]/usr/bin/git config --local gc.auto 0
+2026-03-09T05:06:22.4346308Z ##[endgroup]
+2026-03-09T05:06:22.4347793Z ##[group]Setting up auth
+2026-03-09T05:06:22.4350559Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-03-09T05:06:22.4378277Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-03-09T05:06:22.4593367Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-03-09T05:06:22.4620695Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-03-09T05:06:22.4835473Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-03-09T05:06:22.4862984Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-03-09T05:06:22.5076763Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-03-09T05:06:22.5110281Z ##[endgroup]
+2026-03-09T05:06:22.5111708Z ##[group]Fetching the repository
+2026-03-09T05:06:22.5119710Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d47d298288598548c362aa4bfc02c3c98302d8b1:refs/remotes/origin/master
+2026-03-09T05:06:22.6812344Z From https://github.com/Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+2026-03-09T05:06:22.6817451Z  + fb0a5a3...d47d298 d47d298288598548c362aa4bfc02c3c98302d8b1 -> origin/master  (forced update)
+2026-03-09T05:06:22.6834278Z ##[endgroup]
+2026-03-09T05:06:22.6836095Z ##[group]Determining the checkout info
+2026-03-09T05:06:22.6837652Z ##[endgroup]
+2026-03-09T05:06:22.6840755Z [command]/usr/bin/git sparse-checkout disable
+2026-03-09T05:06:22.6878072Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-03-09T05:06:22.6907368Z ##[group]Checking out the ref
+2026-03-09T05:06:22.6910177Z [command]/usr/bin/git checkout --progress --force -B master refs/remotes/origin/master
+2026-03-09T05:06:22.6943143Z Warning: you are leaving 1 commit behind, not connected to
+2026-03-09T05:06:22.6945382Z any of your branches:
+2026-03-09T05:06:22.6946049Z 
+2026-03-09T05:06:22.6946912Z   fb0a5a3 feat: add untracked ubuntu profiles for 22.04 and 24.04 server
+2026-03-09T05:06:22.6948004Z 
+2026-03-09T05:06:22.6948805Z If you want to keep it by creating a new branch, this may be a good time
+2026-03-09T05:06:22.6950512Z to do so with:
+2026-03-09T05:06:22.6951001Z 
+2026-03-09T05:06:22.6951501Z  git branch <new-branch-name> fb0a5a3
+2026-03-09T05:06:22.6952229Z 
+2026-03-09T05:06:22.6977000Z Switched to a new branch 'master'
+2026-03-09T05:06:22.6980014Z Branch 'master' set up to track remote branch 'master' from 'origin'.
+2026-03-09T05:06:22.6992852Z ##[endgroup]
+2026-03-09T05:06:22.7026241Z [command]/usr/bin/git log -1 --format=%H
+2026-03-09T05:06:22.7049974Z d47d298288598548c362aa4bfc02c3c98302d8b1
+2026-03-09T05:06:22.7340994Z ##[group]Run azure/login@v2
+2026-03-09T05:06:22.7342025Z with:
+2026-03-09T05:06:22.7343173Z   client-id: ***
+2026-03-09T05:06:22.7344135Z   tenant-id: ***
+2026-03-09T05:06:22.7345191Z   subscription-id: ***
+2026-03-09T05:06:22.7346222Z   enable-AzPSSession: false
+2026-03-09T05:06:22.7347205Z   environment: azurecloud
+2026-03-09T05:06:22.7348177Z   allow-no-subscriptions: false
+2026-03-09T05:06:22.7349539Z   audience: api://AzureADTokenExchange
+2026-03-09T05:06:22.7350640Z   auth-type: SERVICE_PRINCIPAL
+2026-03-09T05:06:22.7351614Z ##[endgroup]
+2026-03-09T05:06:22.7739379Z Running Azure CLI Login.
+2026-03-09T05:06:23.0639242Z [command]/usr/bin/az cloud set -n azurecloud
+2026-03-09T05:06:23.3263245Z Done setting cloud: "azurecloud"
+2026-03-09T05:06:23.3981864Z Federated token details:
+2026-03-09T05:06:23.3983274Z  issuer - https://token.actions.githubusercontent.com
+2026-03-09T05:06:23.3985296Z  subject claim - repo:Derek-Coleman-Associates-Corporation/azure-packer-image-factory:ref:refs/heads/master
+2026-03-09T05:06:23.3986496Z  audience - api://AzureADTokenExchange
+2026-03-09T05:06:23.4058283Z  job_workflow_ref - Derek-Coleman-Associates-Corporation/azure-packer-image-factory/.github/workflows/packer-matrix-build.yml@refs/heads/master
+2026-03-09T05:06:23.4060881Z Attempting Azure CLI login by using OIDC...
+2026-03-09T05:06:24.5126579Z Subscription is set successfully.
+2026-03-09T05:06:24.5136068Z Azure CLI login succeeds by using OIDC.
+2026-03-09T05:06:24.5249875Z ##[group]Run hashicorp/setup-packer@v3
+2026-03-09T05:06:24.5250244Z with:
+2026-03-09T05:06:24.5250483Z   version: latest
+2026-03-09T05:06:24.5250746Z ##[endgroup]
+2026-03-09T05:06:24.6647733Z Installing packer:latest and adding it to GitHub Actions Path
+2026-03-09T05:06:24.7903478Z Downloading packer_1.15.0_linux_amd64.zip.
+2026-03-09T05:06:24.9701654Z [command]/usr/bin/unzip -o -q /home/runner/actions-runner/_work/_temp/packer_1.15.0_linux_amd64.zip
+2026-03-09T05:06:25.3329409Z packer:latest added to path
+2026-03-09T05:06:25.5318033Z ##[group]Run set -e
+2026-03-09T05:06:25.5318376Z [36;1mset -e[0m
+2026-03-09T05:06:25.5318750Z [36;1mPROFILE_FILE="profiles/sql2019-ws2019-standard-gen2/profile.yml"[0m
+2026-03-09T05:06:25.5319363Z [36;1mif [[ ! -f "$PROFILE_FILE" ]]; then[0m
+2026-03-09T05:06:25.5319690Z [36;1m  echo "Profile file missing at $PROFILE_FILE"[0m
+2026-03-09T05:06:25.5320008Z [36;1m  exit 1[0m
+2026-03-09T05:06:25.5320192Z [36;1mfi[0m
+2026-03-09T05:06:25.5320366Z [36;1m[0m
+2026-03-09T05:06:25.5320669Z [36;1mprofile_id="$(awk -F': ' '/^profile_id:/{print $2; exit}' "$PROFILE_FILE")"[0m
+2026-03-09T05:06:25.5321179Z [36;1mos_family="$(awk -F': ' '/^os_family:/{print $2; exit}' "$PROFILE_FILE")"[0m
+2026-03-09T05:06:25.5321700Z [36;1msource_urn="$(awk -F': ' '/^source_image_urn:/{print $2; exit}' "$PROFILE_FILE")"[0m
+2026-03-09T05:06:25.5322226Z [36;1mimage_def="$(awk -F': ' '$1 ~ /image_definition/{print $2; exit}' "$PROFILE_FILE")"[0m
+2026-03-09T05:06:25.5322734Z [36;1msig_sku="$(awk -F': ' '$1 ~ /sku/{print $2; exit}' "$PROFILE_FILE")"[0m
+2026-03-09T05:06:25.5323220Z [36;1mvm_size="$(awk -F': ' '$1 ~ /vm_size/{print $2; exit}' "$PROFILE_FILE")"[0m
+2026-03-09T05:06:25.5323559Z [36;1m[0m
+2026-03-09T05:06:25.5323873Z [36;1mIFS=':' read -r source_pub source_offer source_sku source_ver <<< "$source_urn"[0m
+2026-03-09T05:06:25.5324248Z [36;1m[0m
+2026-03-09T05:06:25.5324478Z [36;1mecho "os_family=$os_family" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5324831Z [36;1mecho "profile_id=$profile_id" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5325204Z [36;1mecho "source_pub=$source_pub" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5325644Z [36;1mecho "source_offer=$source_offer" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5326006Z [36;1mecho "source_sku=$source_sku" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5326349Z [36;1mecho "source_ver=$source_ver" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5326715Z [36;1mecho "image_definition=$image_def" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5327079Z [36;1mecho "vm_size=$vm_size" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5327488Z [36;1mecho "temp_rg=rg-packer-temp-${profile_id}-22839217362" >> "$GITHUB_OUTPUT"[0m
+2026-03-09T05:06:25.5351786Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-03-09T05:06:25.5352149Z ##[endgroup]
+2026-03-09T05:06:25.5605882Z ##[group]Run set -e
+2026-03-09T05:06:25.5606162Z [36;1mset -e[0m
+2026-03-09T05:06:25.5606437Z [36;1mDEF_NAME="imgdef-sql2019-ws2019-standard-gen2"[0m
+2026-03-09T05:06:25.5606802Z [36;1mRG_NAME="RG-PACKER-IMAGE-FACTORY-EASTUS"[0m
+2026-03-09T05:06:25.5607131Z [36;1mGALLERY_NAME="acgpackerfactoryeastus"[0m
+2026-03-09T05:06:25.5607651Z [36;1mOS_TYPE="Windows"[0m
+2026-03-09T05:06:25.5607935Z [36;1mif [ "windows" == "linux" ]; then OS_TYPE="Linux"; fi[0m
+2026-03-09T05:06:25.5608236Z [36;1m[0m
+2026-03-09T05:06:25.5608461Z [36;1mecho "Verifying image definition: $DEF_NAME"[0m
+2026-03-09T05:06:25.5608845Z [36;1m# Try to get the image definition, create if it doesn't exist[0m
+2026-03-09T05:06:25.5609553Z [36;1mif ! az sig image-definition show -g "$RG_NAME" -r "$GALLERY_NAME" -i "$DEF_NAME" &>/dev/null; then[0m
+2026-03-09T05:06:25.5610176Z [36;1m  echo "Creating missing Image Definition $DEF_NAME in $GALLERY_NAME ($RG_NAME)..."[0m
+2026-03-09T05:06:25.5610647Z [36;1m  az sig image-definition create \[0m
+2026-03-09T05:06:25.5610924Z [36;1m    -g "$RG_NAME" \[0m
+2026-03-09T05:06:25.5611163Z [36;1m    -r "$GALLERY_NAME" \[0m
+2026-03-09T05:06:25.5611409Z [36;1m    -i "$DEF_NAME" \[0m
+2026-03-09T05:06:25.5611655Z [36;1m    -p "DerekColeman" \[0m
+2026-03-09T05:06:25.5611901Z [36;1m    -f "sql2019-ws2019" \[0m
+2026-03-09T05:06:25.5612152Z [36;1m    -s "standard-gen2" \[0m
+2026-03-09T05:06:25.5612405Z [36;1m    --os-type "$OS_TYPE" \[0m
+2026-03-09T05:06:25.5612658Z [36;1m    --os-state Generalized \[0m
+2026-03-09T05:06:25.5612928Z [36;1m    --hyper-v-generation "V1" \[0m
+2026-03-09T05:06:25.5613194Z [36;1m    --only-show-errors[0m
+2026-03-09T05:06:25.5613440Z [36;1melse[0m
+2026-03-09T05:06:25.5613703Z [36;1m  echo "Image definition $DEF_NAME already exists."[0m
+2026-03-09T05:06:25.5614004Z [36;1mfi[0m
+2026-03-09T05:06:25.5631790Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-03-09T05:06:25.5632137Z ##[endgroup]
+2026-03-09T05:06:25.5667768Z Verifying image definition: imgdef-sql2019-ws2019-standard-gen2
+2026-03-09T05:06:26.5237519Z Creating missing Image Definition imgdef-sql2019-ws2019-standard-gen2 in acgpackerfactoryeastus (RG-PACKER-IMAGE-FACTORY-EASTUS)...
+2026-03-09T05:06:28.4041607Z {
+2026-03-09T05:06:28.4045307Z   "architecture": "x64",
+2026-03-09T05:06:28.4045799Z   "hyperVGeneration": "V1",
+2026-03-09T05:06:28.4047516Z   "id": "/subscriptions/***/resourceGroups/RG-PACKER-IMAGE-FACTORY-EASTUS/providers/Microsoft.Compute/galleries/acgpackerfactoryeastus/images/imgdef-sql2019-ws2019-standard-gen2",
+2026-03-09T05:06:28.4052552Z   "identifier": {
+2026-03-09T05:06:28.4052854Z     "offer": "sql2019-ws2019",
+2026-03-09T05:06:28.4053212Z     "publisher": "DerekColeman",
+2026-03-09T05:06:28.4053563Z     "sku": "standard-gen2"
+2026-03-09T05:06:28.4053861Z   },
+2026-03-09T05:06:28.4054108Z   "location": "eastus",
+2026-03-09T05:06:28.4054468Z   "name": "imgdef-sql2019-ws2019-standard-gen2",
+2026-03-09T05:06:28.4054950Z   "osState": "Generalized",
+2026-03-09T05:06:28.4055258Z   "osType": "Windows",
+2026-03-09T05:06:28.4055567Z   "provisioningState": "Succeeded",
+2026-03-09T05:06:28.4056003Z   "resourceGroup": "RG-PACKER-IMAGE-FACTORY-EASTUS",
+2026-03-09T05:06:28.4056433Z   "tags": {},
+2026-03-09T05:06:28.4056754Z   "type": "Microsoft.Compute/galleries/images"
+2026-03-09T05:06:28.4057152Z }
+2026-03-09T05:06:28.5154149Z ##[group]Run set -e
+2026-03-09T05:06:28.5154581Z [36;1mset -e[0m
+2026-03-09T05:06:28.5154895Z [36;1m[0m
+2026-03-09T05:06:28.5155180Z [36;1mOS_FAMILY="windows"[0m
+2026-03-09T05:06:28.5155526Z [36;1m[0m
+2026-03-09T05:06:28.5155849Z [36;1mif [ "$OS_FAMILY" == "windows" ]; then[0m
+2026-03-09T05:06:28.5156416Z [36;1m  TEMPLATE_FILE="packer/windows/windows.pkr.hcl"[0m
+2026-03-09T05:06:28.5156995Z [36;1m  EXTRA_VARS=( "-var" "vm_admin_password=" )[0m
+2026-03-09T05:06:28.5157506Z [36;1melif [ "$OS_FAMILY" == "linux" ]; then[0m
+2026-03-09T05:06:28.5158041Z [36;1m  TEMPLATE_FILE="packer/ubuntu/ubuntu.pkr.hcl"[0m
+2026-03-09T05:06:28.5158549Z [36;1m  EXTRA_VARS=()[0m
+2026-03-09T05:06:28.5159079Z [36;1melse[0m
+2026-03-09T05:06:28.5159458Z [36;1m  echo "Unsupported OS family: $OS_FAMILY"[0m
+2026-03-09T05:06:28.5159895Z [36;1m  exit 1[0m
+2026-03-09T05:06:28.5160183Z [36;1mfi[0m
+2026-03-09T05:06:28.5160513Z [36;1m[0m
+2026-03-09T05:06:28.5160847Z [36;1mpacker init "$TEMPLATE_FILE"[0m
+2026-03-09T05:06:28.5161505Z [36;1m[0m
+2026-03-09T05:06:28.5161794Z [36;1mpacker build \[0m
+2026-03-09T05:06:28.5162142Z [36;1m  -force \[0m
+2026-03-09T05:06:28.5162555Z [36;1m  -var "profile_id=sql2019-ws2019-standard-gen2" \[0m
+2026-03-09T05:06:28.5163079Z [36;1m  -var "location=eastus" \[0m
+2026-03-09T05:06:28.5163641Z [36;1m  -var "build_resource_group_name=RG-PACKER-IMAGE-FACTORY-EASTUS" \[0m
+2026-03-09T05:06:28.5164268Z [36;1m  -var "vm_size=Standard_D4as_v5" \[0m
+2026-03-09T05:06:28.5164898Z [36;1m  -var "managed_image_name=sql2019-ws2019-standard-gen2-22839217362" \[0m
+2026-03-09T05:06:28.5165715Z [36;1m  -var "source_image_publisher=MicrosoftSQLServer" \[0m
+2026-03-09T05:06:28.5166263Z [36;1m  -var "source_image_offer=sql2019-ws2019" \[0m
+2026-03-09T05:06:28.5166754Z [36;1m  -var "source_image_sku=standard-gen2" \[0m
+2026-03-09T05:06:28.5167273Z [36;1m  -var "source_image_version=latest" \[0m
+2026-03-09T05:06:28.5167923Z [36;1m  -var "gallery_resource_group=RG-PACKER-IMAGE-FACTORY-EASTUS" \[0m
+2026-03-09T05:06:28.5168620Z [36;1m  -var "gallery_name=acgpackerfactoryeastus" \[0m
+2026-03-09T05:06:28.5169452Z [36;1m  -var "image_definition=imgdef-sql2019-ws2019-standard-gen2" \[0m
+2026-03-09T05:06:28.5170064Z [36;1m  -var "image_version=1.0.13" \[0m
+2026-03-09T05:06:28.5170556Z [36;1m  -var "replication_regions=[\"eastus\"]" \[0m
+2026-03-09T05:06:28.5171018Z [36;1m  "${EXTRA_VARS[@]}" \[0m
+2026-03-09T05:06:28.5171445Z [36;1m  "$TEMPLATE_FILE" 2>&1 | tee packerbuild.log[0m
+2026-03-09T05:06:28.5194787Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-03-09T05:06:28.5195314Z env:
+2026-03-09T05:06:28.5195787Z   ARM_CLIENT_ID: ***
+2026-03-09T05:06:28.5196334Z   ARM_CLIENT_SECRET: ***
+2026-03-09T05:06:28.5196757Z   ARM_TENANT_ID: ***
+2026-03-09T05:06:28.5197159Z   ARM_SUBSCRIPTION_ID: ***
+2026-03-09T05:06:28.5197471Z ##[endgroup]
+2026-03-09T05:06:29.8794556Z [1;32mazure-arm.image: output will be in this color.[0m
+2026-03-09T05:06:29.8795033Z 
+2026-03-09T05:06:29.8798062Z [1;32m==> azure-arm.image: Running builder ...[0m
+2026-03-09T05:06:29.8806753Z [1;32m==> azure-arm.image: Creating Azure Resource Manager (ARM) client ...[0m
+2026-03-09T05:06:31.1688148Z [1;32m==> azure-arm.image: ARM Client successfully created[0m
+2026-03-09T05:06:31.8309753Z [1;32m==> azure-arm.image: Getting source image id for the deployment ...[0m
+2026-03-09T05:06:31.8315745Z [1;32m==> azure-arm.image:  -> SourceImageName: '/subscriptions/***/providers/Microsoft.Compute/locations/eastus/publishers/MicrosoftSQLServer/ArtifactTypes/vmimage/offers/sql2019-ws2019/skus/standard-gen2/versions/latest'[0m
+2026-03-09T05:06:31.9992707Z [1;32m==> azure-arm.image: Using existing resource group ...[0m
+2026-03-09T05:06:31.9994344Z [1;32m==> azure-arm.image:  -> ResourceGroupName : 'RG-PACKER-IMAGE-FACTORY-EASTUS'[0m
+2026-03-09T05:06:31.9995609Z [1;32m==> azure-arm.image:  -> Location          : 'eastus'[0m
+2026-03-09T05:06:31.9997157Z [1;32m==> azure-arm.image: Validating deployment template ...[0m
+2026-03-09T05:06:31.9998569Z [1;32m==> azure-arm.image:  -> ResourceGroupName : 'RG-PACKER-IMAGE-FACTORY-EASTUS'[0m
+2026-03-09T05:06:32.0000763Z [1;32m==> azure-arm.image:  -> DeploymentName    : 'kvpkrdpxv48nkbt5p'[0m
+2026-03-09T05:06:32.7522775Z [1;32m==> azure-arm.image: Deploying deployment template ...[0m
+2026-03-09T05:06:32.7526522Z [1;32m==> azure-arm.image:  -> ResourceGroupName : 'RG-PACKER-IMAGE-FACTORY-EASTUS'[0m
+2026-03-09T05:06:32.7527850Z [1;32m==> azure-arm.image:  -> DeploymentName    : 'kvpkrdpxv48nkbt5p'[0m
+2026-03-09T05:06:53.7466665Z [1;32m==> azure-arm.image: Getting the certificate's URL ...[0m
+2026-03-09T05:06:53.7467668Z [1;32m==> azure-arm.image:  -> Key Vault Name        : 'pkrkvxv48nkbt5p'[0m
+2026-03-09T05:06:53.7480714Z [1;32m==> azure-arm.image:  -> Key Vault Secret Name : 'packerKeyVaultSecret'[0m
+2026-03-09T05:06:53.8443093Z [1;32m==> azure-arm.image:  -> Certificate URL       : 'https://pkrkvxv48nkbt5p.vault.azure.net/secrets/packerKeyVaultSecret/825a93aa37754429bb324b5317bcf343'[0m
+2026-03-09T05:06:53.8445715Z [1;32m==> azure-arm.image: Setting the certificate's URL ...[0m
+2026-03-09T05:06:53.8446759Z [1;32m==> azure-arm.image: Validating deployment template ...[0m
+2026-03-09T05:06:53.8447739Z [1;32m==> azure-arm.image:  -> ResourceGroupName : 'RG-PACKER-IMAGE-FACTORY-EASTUS'[0m
+2026-03-09T05:06:53.8448676Z [1;32m==> azure-arm.image:  -> DeploymentName    : 'pkrdpxv48nkbt5p'[0m
+2026-03-09T05:06:54.4732733Z [1;32m==> azure-arm.image: ERROR: -> InvalidTemplateDeployment : The template deployment 'pkrdpxv48nkbt5p' is not valid according to the validation procedure. The tracking id is 'f0efe4b7-8a2f-486d-9e2e-1806459583c1'. See inner errors for details.
+2026-03-09T05:06:54.4747911Z ==> azure-arm.image: ERROR:   -> QuotaExceeded : Operation could not be completed as it results in exceeding approved standardDASv5Family Cores quota. Additional details - Deployment Model: Resource Manager, Location: eastus, Current Limit: 65, Current Usage: 64, Additional Required: 4, (Minimum) New Limit Required: 68. Setup Alerts when Quota reaches threshold. Learn more at https://aka.ms/quotamonitoringalerting . Submit a request for Quota increase at https://aka.ms/ProdportalCRP/#blade/Microsoft_Azure_Capacity/UsageAndQuota.ReactView/Parameters/%7B%22subscriptionId%22:%22***%22,%22command%22:%22openQuotaApprovalBlade%22,%22quotas%22:[%7B%22location%22:%22eastus%22,%22providerId%22:%22Microsoft.Compute%22,%22resourceName%22:%22standardDASv5Family%22,%22quotaRequest%22:%7B%22properties%22:%7B%22limit%22:68,%22unit%22:%22Count%22,%22name%22:%7B%22value%22:%22standardDASv5Family%22%7D%7D%7D%7D]%7D by specifying parameters listed in the ‘Details’ section for deployment to succeed. Please read more about quota limits at https://docs.microsoft.com/en-us/azure/azure-supportability/per-vm-quota-requests
+2026-03-09T05:06:54.4752269Z ==> azure-arm.image:[0m
+2026-03-09T05:06:54.4753517Z [1;31m==> azure-arm.image: unexpected status 400 (400 Bad Request) with error: InvalidTemplateDeployment: The template deployment 'pkrdpxv48nkbt5p' is not valid according to the validation procedure. The tracking id is 'f0efe4b7-8a2f-486d-9e2e-1806459583c1'. See inner errors for details.[0m
+2026-03-09T05:06:54.4754642Z [1;32m==> azure-arm.image: 
+2026-03-09T05:06:54.4754999Z ==> azure-arm.image: Deleting KeyVault created during build[0m
+2026-03-09T05:06:57.0467990Z [1;32m==> azure-arm.image: Deleted -> Microsoft.KeyVault/vaults : 'pkrkvxv48nkbt5p'[0m
+2026-03-09T05:06:57.0470135Z [1;32m==> azure-arm.image: Removing the created Deployment object: 'kvpkrdpxv48nkbt5p'[0m
+2026-03-09T05:07:07.6044092Z [1;32m==> azure-arm.image: 
+2026-03-09T05:07:07.6045204Z ==> azure-arm.image: The resource group was not created by Packer, not deleting ...[0m
+2026-03-09T05:07:07.6055468Z [1;31mBuild 'azure-arm.image' errored after 37 seconds 725 milliseconds: unexpected status 400 (400 Bad Request) with error: InvalidTemplateDeployment: The template deployment 'pkrdpxv48nkbt5p' is not valid according to the validation procedure. The tracking id is 'f0efe4b7-8a2f-486d-9e2e-1806459583c1'. See inner errors for details.[0m
+2026-03-09T05:07:07.6057949Z 
+2026-03-09T05:07:07.6058226Z ==> Wait completed after 37 seconds 725 milliseconds
+2026-03-09T05:07:07.6058632Z 
+2026-03-09T05:07:07.6059046Z ==> Some builds didn't complete successfully and had errors:
+2026-03-09T05:07:07.6061207Z --> azure-arm.image: unexpected status 400 (400 Bad Request) with error: InvalidTemplateDeployment: The template deployment 'pkrdpxv48nkbt5p' is not valid according to the validation procedure. The tracking id is 'f0efe4b7-8a2f-486d-9e2e-1806459583c1'. See inner errors for details.
+2026-03-09T05:07:07.6062501Z 
+2026-03-09T05:07:07.6062623Z ==> Builds finished but no artifacts were created.
+2026-03-09T05:07:07.7907069Z ##[error]Process completed with exit code 1.
+2026-03-09T05:07:07.7957170Z ##[group]Run echo "Packer Build Failed for profiles/sql2019-ws2019-standard-gen2. Extracting error tail..."
+2026-03-09T05:07:07.7958123Z [36;1mecho "Packer Build Failed for profiles/sql2019-ws2019-standard-gen2. Extracting error tail..."[0m
+2026-03-09T05:07:07.7958611Z [36;1mmkdir -p evidence/failures[0m
+2026-03-09T05:07:07.7959294Z [36;1mtail -n 50 packerbuild.log > "evidence/failures/failed-sql2019-ws2019-standard-gen2.txt"[0m
+2026-03-09T05:07:07.7976662Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-03-09T05:07:07.7976993Z ##[endgroup]
+2026-03-09T05:07:07.8013584Z Packer Build Failed for profiles/sql2019-ws2019-standard-gen2. Extracting error tail...
+2026-03-09T05:07:07.8062868Z ##[group]Run echo "Scanning for and deleting orphaned Packer Resource Groups..."
+2026-03-09T05:07:07.8063430Z [36;1mecho "Scanning for and deleting orphaned Packer Resource Groups..."[0m
+2026-03-09T05:07:07.8063936Z [36;1m# Match precisely the expected Packer temporary naming scheme per workflow ID[0m
+2026-03-09T05:07:07.8064542Z [36;1mSTRANDED_RGS=$(az group list --query "[?starts_with(name, 'pkr-Resource-Group-')].name" -o tsv)[0m
+2026-03-09T05:07:07.8065017Z [36;1mfor rg in $STRANDED_RGS; do[0m
+2026-03-09T05:07:07.8065346Z [36;1m  echo "Attempting cleanup on stranded Resource Group: $rg"[0m
+2026-03-09T05:07:07.8065811Z [36;1m  az group delete --name "$rg" --yes --no-wait || echo "Failed to delete $rg"[0m
+2026-03-09T05:07:07.8066189Z [36;1mdone[0m
+2026-03-09T05:07:07.8081513Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-03-09T05:07:07.8081837Z ##[endgroup]
+2026-03-09T05:07:07.8115896Z Scanning for and deleting orphaned Packer Resource Groups...
+2026-03-09T05:07:08.8571337Z ##[group]Run actions/upload-artifact@v4
+2026-03-09T05:07:08.8571639Z with:
+2026-03-09T05:07:08.8571899Z   name: global-build-errors-sql2019-ws2019-standard-gen2
+2026-03-09T05:07:08.8572216Z   path: evidence/failures/
+2026-03-09T05:07:08.8572440Z   retention-days: 7
+2026-03-09T05:07:08.8572642Z   if-no-files-found: warn
+2026-03-09T05:07:08.8572857Z   compression-level: 6
+2026-03-09T05:07:08.8573058Z   overwrite: false
+2026-03-09T05:07:08.8573267Z   include-hidden-files: false
+2026-03-09T05:07:08.8573490Z ##[endgroup]
+2026-03-09T05:07:09.0799771Z With the provided path, there will be 1 file uploaded
+2026-03-09T05:07:09.0800668Z Artifact name is valid!
+2026-03-09T05:07:09.0801056Z Root directory input is valid!
+2026-03-09T05:07:09.1699540Z Beginning upload of artifact content to blob storage
+2026-03-09T05:07:09.2167726Z Uploaded bytes 1650
+2026-03-09T05:07:09.2320380Z Finished uploading artifact content to blob storage!
+2026-03-09T05:07:09.2324163Z SHA256 digest of uploaded artifact zip is 2e6e67b739556396b67cb2faedbce79075b704f481158f242ab83fb1527488b9
+2026-03-09T05:07:09.2325966Z Finalizing artifact upload
+2026-03-09T05:07:09.3029687Z Artifact global-build-errors-sql2019-ws2019-standard-gen2.zip successfully finalized. Artifact ID 5823426658
+2026-03-09T05:07:09.3031898Z Artifact global-build-errors-sql2019-ws2019-standard-gen2 has been successfully uploaded! Final size is 1650 bytes. Artifact ID is 5823426658
+2026-03-09T05:07:09.3040317Z Artifact download URL: https://github.com/Derek-Coleman-Associates-Corporation/azure-packer-image-factory/actions/runs/22839217362/artifacts/5823426658
+2026-03-09T05:07:09.3192380Z Post job cleanup.
+2026-03-09T05:07:09.3584966Z Clearing azure cli accounts from the local cache.
+2026-03-09T05:07:09.3593983Z [command]/usr/bin/az account clear
+2026-03-09T05:07:09.8061973Z Post job cleanup.
+2026-03-09T05:07:09.9024363Z [command]/usr/bin/git version
+2026-03-09T05:07:09.9060402Z git version 2.34.1
+2026-03-09T05:07:09.9103807Z Temporarily overriding HOME='/home/runner/actions-runner/_work/_temp/b1edd93c-52f3-4d7e-ba94-78091be3baf4' before making global git config changes
+2026-03-09T05:07:09.9105060Z Adding repository directory to the temporary git global config as a safe directory
+2026-03-09T05:07:09.9109510Z [command]/usr/bin/git config --global --add safe.directory /home/runner/actions-runner/_work/azure-packer-image-factory/azure-packer-image-factory
+2026-03-09T05:07:09.9143757Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-03-09T05:07:09.9176875Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-03-09T05:07:09.9397416Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-03-09T05:07:09.9418401Z http.https://github.com/.extraheader
+2026-03-09T05:07:09.9432266Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-03-09T05:07:09.9462975Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-03-09T05:07:09.9687865Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-03-09T05:07:09.9718641Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-03-09T05:07:10.0050983Z Cleaning up orphan processes

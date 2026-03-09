@@ -1,0 +1,38 @@
+
+* master Global Matrix Packer Build · 22835434065
+Triggered via workflow_dispatch about 9 minutes ago
+
+JOBS
+✓ Map Image Profiles in 5s (ID 66230912853)
+* Build Image profiles/sql2017-ws2019-standard-gen2 (ID 66230919544)
+* Build Image profiles/sql2019-ws2019-web-gen2 (ID 66230919549)
+* Build Image profiles/sql2019-ws2019-standard-gen2 (ID 66230919550)
+* Build Image profiles/sql2017-ws2019-enterprise-gen2 (ID 66230919552)
+* Build Image profiles/sql2019-ws2022-developer-gen1 (ID 66230919554)
+* Build Image profiles/sql2022-ws2022 (ID 66230919559)
+* Build Image profiles/sql2019-ws2019-developer-gen2 (ID 66230919561)
+* Build Image profiles/sql2019-ws2022-enterprise-gen1 (ID 66230919562)
+* Build Image profiles/sql2019-ws2022-standard-gen1 (ID 66230919563)
+* Build Image profiles/sql2019-ws2022-web (ID 66230919565)
+* Build Image profiles/sql2019-ws2019-enterprise-gen2 (ID 66230919566)
+* Build Image profiles/sql2022-ws2022-developer (ID 66230919567)
+* Build Image profiles/sql2019-ws2022-enterprisedbengineonly-gen2 (ID 66230919570)
+* Build Image profiles/sql2019-ws2022-standard (ID 66230919573)
+* Build Image profiles/sql2022-ws2022-standard (ID 66230919574)
+* Build Image profiles/sql2019-ws2022-web-gen2 (ID 66230919575)
+* Build Image profiles/sql2019-ws2022-enterprise (ID 66230919577)
+* Build Image profiles/sql2025-ws2025-enterprise (ID 66230919581)
+* Build Image profiles/sql2022-ws2022-enterprise (ID 66230919582)
+* Build Image profiles/sql2019-ws2022-developer (ID 66230919584)
+* Build Image profiles/sql2025-ws2025-developer (ID 66230919585)
+* Build Image profiles/sql2025-ws2025-standard (ID 66230919586)
+* Build Image profiles/sql2022-ws2022-web-gen2 (ID 66230919589)
+* Build Image profiles/ubuntu-server (ID 66230919591)
+* Build Image profiles/sql2017-ws2019-web-gen2 (ID 66230919593)
+* Build Image profiles/sql2017-ws2019-developer-gen2 (ID 66230919599)
+* Build Image profiles/ubuntu-server-2404-minimal (ID 66230919601)
+* Build Image profiles/ubuntu-server-2004 (ID 66230919604)
+* Build Image profiles/windows-server-gen1 (ID 66230919609)
+
+For more information about a job, try: gh run view --job=<job-id>
+View this run on GitHub: https://github.com/Derek-Coleman-Associates-Corporation/azure-packer-image-factory/actions/runs/22835434065

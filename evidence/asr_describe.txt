@@ -1,0 +1,43 @@
+command started at 2026-03-09 04:30:38+00:00, finished at 2026-03-09 04:30:39+00:00 with exitcode=0
+Name:         arc-general-runners
+Namespace:    arc-runners
+Labels:       actions.github.com/scale-set-name=arc-general-runners
+              actions.github.com/scale-set-namespace=arc-runners
+              app.kubernetes.io/component=autoscaling-runner-set
+              app.kubernetes.io/instance=arc-general-runners
+              app.kubernetes.io/managed-by=Helm
+              app.kubernetes.io/name=arc-general-runners
+              app.kubernetes.io/part-of=gha-rs
+              app.kubernetes.io/version=0.13.1
+              helm.sh/chart=gha-rs-0.13.1
+Annotations:  actions.github.com/cleanup-manager-role-binding: arc-general-runners-gha-rs-manager
+              actions.github.com/cleanup-manager-role-name: arc-general-runners-gha-rs-manager
+              actions.github.com/cleanup-no-permission-service-account-name: arc-general-runners-gha-rs-no-permission
+              actions.github.com/values-hash: d458baf3d86ec67a2b68894abbe525ec5914570bb786598bff325aef8eebce4
+              meta.helm.sh/release-name: arc-general-runners
+              meta.helm.sh/release-namespace: arc-runners
+API Version:  actions.github.com/v1alpha1
+Kind:         AutoscalingRunnerSet
+Metadata:
+  Creation Timestamp:  2026-03-09T04:28:50Z
+  Finalizers:
+    autoscalingrunnerset.actions.github.com/finalizer
+  Generation:        1
+  Resource Version:  2805500
+  UID:               ec6ba570-4e58-46c3-9915-6881a001fd9e
+Spec:
+  Github Config Secret:  github-app-auth
+  Github Config URL:     https://github.com/Derek-Coleman-Associates-Corporation/azure-packer-image-factory
+  Max Runners:           20
+  Min Runners:           10
+  Template:
+    Spec:
+      Containers:
+        Command:
+          /home/runner/run.sh
+        Image:               ghcr.io/actions/actions-runner:latest
+        Name:                runner
+      Restart Policy:        Never
+      Service Account Name:  arc-general-runners-gha-rs-no-permission
+Events:                      <none>
+

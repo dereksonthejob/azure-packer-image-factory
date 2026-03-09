@@ -1,0 +1,13 @@
+profile_id: oracle-linux-96
+os_family: linux
+os_line: oracle-linux
+source_image_urn: Oracle:Oracle-Linux:ol96-lvm-gen2:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-oracle-linux-96-gen2
+  publisher: dcassociatesgroup-com
+  offer: Oracle-Linux
+  sku: ol96-lvm-gen2
+test:
+  vm_size: Standard_D2ads_v6

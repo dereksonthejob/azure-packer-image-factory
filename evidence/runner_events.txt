@@ -1,0 +1,22 @@
+command started at 2026-03-09 02:19:37+00:00, finished at 2026-03-09 02:19:46+00:00 with exitcode=0
+3s          Normal    Pulled      pod/arc-general-runners-4lwl4-runner-kg5vt   Successfully pulled image "ghcr.io/actions/actions-runner:latest" in 191ms (191ms including waiting). Image size: 540108575 bytes.
+3s          Normal    Pulling     pod/arc-general-runners-4lwl4-runner-kg5vt   Pulling image "ghcr.io/actions/actions-runner:latest"
+2s          Normal    Pulled      pod/arc-general-runners-4lwl4-runner-rfkl4   Successfully pulled image "ghcr.io/actions/actions-runner:latest" in 265ms (265ms including waiting). Image size: 540108575 bytes.
+1s          Normal    Scheduled   pod/arc-general-runners-4lwl4-runner-hxzt9   Successfully assigned arc-runners/arc-general-runners-4lwl4-runner-hxzt9 to aks-general-34717483-vmss000000
+1s          Normal    Scheduled   pod/arc-heavy-runners-mlqbj-runner-c8xdb     Successfully assigned arc-runners/arc-heavy-runners-mlqbj-runner-c8xdb to aks-heavy-22317745-vmss000002
+2s          Normal    Pulling     pod/arc-general-runners-4lwl4-runner-rfkl4   Pulling image "ghcr.io/actions/actions-runner:latest"
+2s          Normal    Created     pod/arc-general-runners-4lwl4-runner-rfkl4   Created container: runner
+2s          Normal    Started     pod/arc-general-runners-4lwl4-runner-rfkl4   Started container runner
+2s          Normal    Pulling     pod/arc-heavy-runners-mlqbj-runner-trz76     Pulling image "ghcr.io/actions/actions-runner:latest"
+2s          Normal    Pulled      pod/arc-heavy-runners-mlqbj-runner-trz76     Successfully pulled image "ghcr.io/actions/actions-runner:latest" in 70ms (70ms including waiting). Image size: 540108575 bytes.
+2s          Normal    Started     pod/arc-general-runners-4lwl4-runner-t49ts   Started container runner
+2s          Normal    Created     pod/arc-heavy-runners-mlqbj-runner-trz76     Created container: runner
+2s          Normal    Started     pod/arc-heavy-runners-mlqbj-runner-trz76     Started container runner
+2s          Normal    Created     pod/arc-general-runners-4lwl4-runner-t49ts   Created container: runner
+2s          Normal    Pulled      pod/arc-general-runners-4lwl4-runner-t49ts   Successfully pulled image "ghcr.io/actions/actions-runner:latest" in 383ms (383ms including waiting). Image size: 540108575 bytes.
+2s          Normal    Pulling     pod/arc-heavy-runners-mlqbj-runner-c8xdb     Pulling image "ghcr.io/actions/actions-runner:latest"
+1s          Normal    Started     pod/arc-heavy-runners-mlqbj-runner-c8xdb     Started container runner
+1s          Normal    Created     pod/arc-heavy-runners-mlqbj-runner-c8xdb     Created container: runner
+1s          Normal    Scheduled   pod/arc-general-runners-4lwl4-runner-d9m54   Successfully assigned arc-runners/arc-general-runners-4lwl4-runner-d9m54 to aks-general-34717483-vmss000000
+1s          Normal    Pulled      pod/arc-heavy-runners-mlqbj-runner-c8xdb     Successfully pulled image "ghcr.io/actions/actions-runner:latest" in 108ms (108ms including waiting). Image size: 540108575 bytes.
+

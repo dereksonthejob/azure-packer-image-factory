@@ -95,7 +95,7 @@ jobs:
               -g "$RG_NAME" \
               -r "$GALLERY_NAME" \
               -i "$DEF_NAME" \
-              -p "DerekColeman" \
+              -p "dcassociatesgroup-com" \
               -f "${{ steps.profile.outputs.source_offer }}" \
               -s "${{ steps.profile.outputs.source_sku }}" \
               --os-type "$OS_TYPE" \

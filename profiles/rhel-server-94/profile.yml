@@ -1,0 +1,13 @@
+profile_id: rhel-server-94
+os_family: linux
+os_line: rhel
+source_image_urn: RedHat:RHEL:94_gen2:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-rhel-server-94-gen2
+  publisher: dcassociatesgroup-com
+  offer: RHEL
+  sku: 94_gen2
+test:
+  vm_size: Standard_D2ads_v6
