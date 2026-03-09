@@ -18,7 +18,7 @@ on:
       runs_on_pool:
         description: 'Runner pool to use'
         required: false
-        default: 'arc-general-runners'
+        default: 'arc-dereksonthejob-runners'
         type: string
 
 permissions:

@@ -10,7 +10,7 @@ on:
       runs_on_pool:
         description: 'Runner pool to use'
         required: false
-        default: 'arc-general-runners'
+        default: 'arc-dereksonthejob-runners'
         type: string
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
   build:
     name: Build Image ${{ matrix.profile }}
     needs: discover-profiles
-    runs-on: "${{ inputs.runs_on_pool || 'arc-general-runners' }}"
+    runs-on: ${{ inputs.runs_on_pool || 'arc-dereksonthejob-runners' }}"
     continue-on-error: true
     strategy:
       fail-fast: false
