@@ -8,4 +8,4 @@ gallery:
   offer: ubuntu-22_04-lts
   sku: ubuntu-minimal-gen1
 test:
-  vm_size: Standard_D2ads_v6
+  vm_size: Standard_D4ads_v6

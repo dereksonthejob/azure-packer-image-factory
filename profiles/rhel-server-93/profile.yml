@@ -10,4 +10,4 @@ gallery:
   offer: RHEL
   sku: 93-gen2
 test:
-  vm_size: Standard_D2ads_v6
+  vm_size: Standard_D4ads_v6
