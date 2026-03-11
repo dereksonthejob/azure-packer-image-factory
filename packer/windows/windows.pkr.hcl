@@ -13,6 +13,7 @@ packer {
 
 variable "profile_id" { type = string }
 variable "location" { type = string }
+variable "build_resource_group_name" { type = string }
 variable "temp_resource_group_name" {
   type    = string
   default = ""
