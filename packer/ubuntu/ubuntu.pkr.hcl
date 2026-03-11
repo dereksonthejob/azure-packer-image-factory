@@ -32,7 +32,6 @@ variable "azure_tags" {
 
 source "azure-arm" "image" {
   use_azure_cli_auth = true
-  use_public_ip      = false
   virtual_network_resource_group_name = "rg-github-runner-platform-eastus"
   virtual_network_name                = "vnet-gh-runners-eastus"
   virtual_network_subnet_name         = "snet-gh-runners"
