@@ -157,6 +157,7 @@ jobs:
           packer build \
             -force \
             -var "profile_id=${{ steps.profile.outputs.profile_id }}" \
+            -var "location=eastus" \
             -var "build_resource_group_name=RG-PACKER-IMAGE-FACTORY-EASTUS" \
             -var "vm_size=${{ steps.profile.outputs.vm_size }}" \
             -var "managed_image_name=${{ steps.profile.outputs.profile_id }}-${{ github.run_id }}" \
