@@ -7,4 +7,4 @@ gallery:
   offer: windows-server-2025
   sku: datacenter
 test:
-  vm_size: Standard_D4ads_v6
+  vm_size: Standard_D4s_v3
