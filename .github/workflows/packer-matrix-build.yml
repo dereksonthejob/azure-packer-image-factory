@@ -62,6 +62,9 @@ jobs:
           image_def="$(awk -F': ' '$1 ~ /image_definition/{print $2; exit}' "$PROFILE_FILE")"
           sig_sku="$(awk -F': ' '$1 ~ /sku/{print $2; exit}' "$PROFILE_FILE")"
           vm_size="$(awk -F': ' '$1 ~ /vm_size/{print $2; exit}' "$PROFILE_FILE")"
+          plan_pub="$(awk -F': ' '$1 ~ /plan_publisher/{print $2; exit}' "$PROFILE_FILE")"
+          plan_offer="$(awk -F': ' '$1 ~ /plan_product/{print $2; exit}' "$PROFILE_FILE")"
+          plan_sku="$(awk -F': ' '$1 ~ /plan_name/{print $2; exit}' "$PROFILE_FILE")"
           
           IFS=':' read -r source_pub source_offer source_sku source_ver <<< "$source_urn"
 
@@ -73,6 +76,9 @@ jobs:
           echo "source_ver=$source_ver" >> "$GITHUB_OUTPUT"
           echo "image_definition=$image_def" >> "$GITHUB_OUTPUT"
           echo "vm_size=$vm_size" >> "$GITHUB_OUTPUT"
+          echo "plan_pub=$plan_pub" >> "$GITHUB_OUTPUT"
+          echo "plan_product=$plan_offer" >> "$GITHUB_OUTPUT"
+          echo "plan_name=$plan_sku" >> "$GITHUB_OUTPUT"
           echo "temp_rg=rg-packer-temp-${profile_id}-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
 
       - name: Ensure CLI Prerequisites
@@ -175,6 +181,9 @@ jobs:
             -var "image_definition=${{ steps.profile.outputs.image_definition }}" \
             -var "image_version=${{ inputs.image_version }}" \
             -var "replication_regions=[\"eastus\"]" \
+            -var "plan_info_publisher=${{ steps.profile.outputs.plan_pub }}" \
+            -var "plan_info_product=${{ steps.profile.outputs.plan_product }}" \
+            -var "plan_info_name=${{ steps.profile.outputs.plan_name }}" \
             "${EXTRA_VARS[@]}" \
             "$TEMPLATE_FILE" 2>&1 | tee packerbuild.log
 

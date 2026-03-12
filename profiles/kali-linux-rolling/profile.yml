@@ -11,3 +11,8 @@ gallery:
   sku: kali-2025-1d
 test:
   vm_size: Standard_D4ads_v6
+
+plan_info:
+  plan_publisher: kali-linux
+  plan_product: kali
+  plan_name: kali-2025-1d

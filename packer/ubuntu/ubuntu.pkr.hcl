@@ -30,6 +30,21 @@ variable "azure_tags" {
   default = {}
 }
 
+variable "plan_info_publisher" {
+  type    = string
+  default = ""
+}
+
+variable "plan_info_product" {
+  type    = string
+  default = ""
+}
+
+variable "plan_info_name" {
+  type    = string
+  default = ""
+}
+
 source "azure-arm" "image" {
   use_azure_cli_auth = true
   build_resource_group_name = var.build_resource_group_name
@@ -56,6 +71,15 @@ source "azure-arm" "image" {
     image_name          = var.image_definition
     image_version       = var.image_version
     replication_regions = var.replication_regions
+  }
+
+  dynamic "plan_info" {
+    for_each = length(var.plan_info_publisher) > 0 ? [1] : []
+    content {
+      plan_publisher = var.plan_info_publisher
+      plan_product   = var.plan_info_product
+      plan_name      = var.plan_info_name
+    }
   }
 }
 
