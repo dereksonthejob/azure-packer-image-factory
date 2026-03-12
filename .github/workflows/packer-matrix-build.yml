@@ -35,6 +35,7 @@ jobs:
     name: Build Image ${{ matrix.profile }}
     needs: discover-profiles
     runs-on: [self-hosted, "${{ inputs.runs_on_pool || 'vmss' }}"]
+    timeout-minutes: 1440
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -142,7 +143,11 @@ jobs:
           OS_FAMILY="${{ steps.profile.outputs.os_family }}"
           
           if [ "$OS_FAMILY" == "windows" ]; then
-            TEMPLATE_FILE="packer/windows/windows.pkr.hcl"
+            if [[ "${{ steps.profile.outputs.profile_id }}" == *"sql"* ]]; then
+              TEMPLATE_FILE="packer/windows/windows-sql.pkr.hcl"
+            else
+              TEMPLATE_FILE="packer/windows/windows.pkr.hcl"
+            fi
             EXTRA_VARS=( "-var" "vm_admin_password=${{ secrets.IMAGE_TEST_VM_ADMIN_PASSWORD }}" )
           elif [ "$OS_FAMILY" == "linux" ]; then
             TEMPLATE_FILE="packer/ubuntu/ubuntu.pkr.hcl"

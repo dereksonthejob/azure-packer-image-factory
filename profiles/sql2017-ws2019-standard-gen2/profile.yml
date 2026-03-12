@@ -8,4 +8,4 @@ gallery:
   offer: sql2017-ws2019
   sku: standard-gen2
 test:
-  vm_size: Standard_D4ads_v6
+  vm_size: Standard_D8ads_v6
