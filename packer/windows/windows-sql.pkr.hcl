@@ -58,7 +58,7 @@ source "azure-arm" "image" {
   communicator   = "winrm"
   winrm_use_ssl  = true
   winrm_insecure = true
-  winrm_timeout  = "10m"
+  winrm_timeout  = "2h"
   winrm_username = "packer"
 
   azure_tags = var.azure_tags
@@ -79,6 +79,15 @@ build {
     scripts = [
       "${path.root}/../../scripts/security-update-check-windows.ps1"
     ]
+  }
+
+  provisioner "windows-update" {
+    search_criteria = "IsInstalled=0"
+    filters = [
+      "exclude:$_.Title -like '*Preview*'",
+      "include:$true"
+    ]
+    update_limit = 25
   }
 
 
