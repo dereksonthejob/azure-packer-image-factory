@@ -87,32 +87,32 @@ def main():
             "name": "SQL Server 2022 on Windows Server 2022",
             "plans": [
                 {
-                    "id": "sql2022win2022",
+                    "id": "1be753ec-23bc-4ed3-ada3-96cb342fef8e",
                     "img_def": "imgdef-sql2022-ws2022-gen2",   # Mapped to Base image
-                    "title": "Windows Server 2022 (Base OS/Gen2)",
-                    "summary": "The foundational Windows Server 2022 Gen2 operating system optimized for scalable SQL Server workloads.",
-                    "description": "<p>A streamlined, highly-secure Windows Server 2022 Gen2 Base image engineered specifically for resilient, hybrid-cloud integration. Provides the core Trusted Launch foundation necessary for seamless enterprise scaling without pre-installed database engines.</p>"
+                    "title": "SQL Server 2022 on Windows Server 2022 (Hardened Pipeline)",
+                    "summary": "Meticulously automated Windows Server 2022 Gen2 operating system hardened via CI/CD pipelines.",
+                    "description": "<h2>Packer-Validated Secure Execution</h2><p>This image is directly engineered by <strong>Derek Coleman & Associates Corp.</strong> using autonomous Azure Packer Image Factory protocols. Unlike generic Publisher templates, this image guarantees absolute footprint transparency, explicitly mitigating End-Of-Life binaries (such as .NET 6.0 vulnerabilities) prior to Sysprep execution. This creates a secure, perfectly pristine Gen2 foundation supporting extreme Azure compliance thresholds.</p>"
                 },
                 {
-                    "id": "sql2022devwin2022",
+                    "id": "309cf02e-acc4-4103-9a3b-812ae15acfcd",
                     "img_def": "imgdef-sql2022-ws2022-developer-gen2",
-                    "title": "SQL Server 2022 Developer on Windows Server 2022 (Gen2)",
-                    "summary": "SQL Server 2022 Developer edition pre-configured for rigorous non-production testing and data engineering.",
-                    "description": "<p>Seamlessly deploy a fully-stacked SQL Server 2022 development environment on Windows Server 2022. This Gen2 Virtual Machine yields full enterprise database features specifically licensed for development and testing. Accelerate pipeline generation and test hybrid cloud integration instantly.</p>"
+                    "title": "SQL Server 2022 Developer on Windows Server 2022 (CI/CD Validated)",
+                    "summary": "SQL Server 2022 Developer edition hardened specifically via rigorous Azure DevOps CI/CD Factory validation.",
+                    "description": "<h2>Zero-Trust Developer Environments</h2><p>Seamlessly deploy a seamlessly patched SQL Server 2022 Developer environment on Windows Server 2022. This Gen2 Virtual Machine utilizes automated Packer build pipelines to guarantee malicious code footprint reduction and explicit Windows Defender integration loops prior to artifact publication. Intentionally engineered to exceed standard Microsoft image compliance checks.</p>"
                 },
                 {
-                    "id": "sql2022stdwin2022",
+                    "id": "e2d677dd-1135-4ed4-9e32-a5e2978000bc",
                     "img_def": "imgdef-sql2022-ws2022-standard-gen2",
-                    "title": "SQL Server 2022 Standard on Windows Server 2022 (Gen2)",
-                    "summary": "The industry-standard operational database management system fully integrated into Windows Server 2022.",
-                    "description": "<p>Designed for robust production deployment, SQL Server 2022 Standard on Windows Server 2022 implements reliable, high-performance structured data ingestion. Includes core database engine capabilities, enhanced security configurations, and Gen2 hypervisor compliance designed for mission-critical enterprise workloads.</p>"
+                    "title": "SQL Server 2022 Standard on Windows Server 2022 (CI/CD Validated)",
+                    "summary": "SQL Server 2022 Standard meticulously built through advanced pipeline orchestration for resilient production security.",
+                    "description": "<h2>Resilient Automated Delivery (RAD)</h2><p>This SQL Server 2022 Standard deployment is uniquely constructed via automated HashiCorp Packer integration mechanisms. By bypassing manual configuration, this artifact is mathematically consistent and perfectly patched against severe CVSS topologies (including implicit .NET runtime depreciation factors) out-of-the-box. The definitive choice for production architectures requiring absolute operational traceability.</p>"
                 },
                 {
-                    "id": "sql_2022_ee_win2022",
+                    "id": "63ee76ac-3f62-45f3-afe3-87f1e923fd2d",
                     "img_def": "imgdef-sql2022-ws2022-enterprise-gen2",
-                    "title": "SQL Server 2022 Enterprise on Windows Server 2022 (Gen2)",
-                    "summary": "Microsoft SQL Server 2022 Enterprise delivering unparalleled tier-1 performance, scale, and analytics.",
-                    "description": "<p>Power your most demanding operational analytics and real-time transaction processing. Microsoft SQL Server 2022 Enterprise Edition on Windows Server 2022 offers massive scalability, unrestricted CPU mapping, built-in ML services, and end-to-end data encryptions deployed seamlessly on Gen2 architectural topologies.</p>"
+                    "title": "SQL Server 2022 Enterprise on Windows Server 2022 (CI/CD Validated)",
+                    "summary": "SQL Server 2022 Enterprise executing on radically hardened Azure pipelines with proactive Defender scanning.",
+                    "description": "<h2>Unmatched Enterprise Governance</h2><p>Our SQL Server 2022 Enterprise iteration delivers maximum transaction efficiency securely paired against an aggressive <strong>Packer CI/CD Security Matrix</strong>. Every deployment is actively cross-referenced against real-time EOL software dependencies before Sysprep abstraction, offering highly-regulated enterprises an uncompromised Database operational state completely decoupled from legacy first-party image bloat.</p>"
                 }
             ]
         }
