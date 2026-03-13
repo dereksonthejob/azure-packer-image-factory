@@ -93,6 +93,15 @@ build {
 
   provisioner "powershell" {
     inline = [
+      "Write-Output 'Executing Commercial Marketplace Vulnerability Mitigation: Neutralizing EOL .NET 6.0 (AzCertify 106247)...'",
+      "$net6paths = @('C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\6.*', 'C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\6.*', 'C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App\\6.*', 'C:\\Program Files\\dotnet\\host\\fxr\\6.*', 'C:\\Program Files\\dotnet\\sdk\\6.*')",
+      "foreach ($p in $net6paths) { if (Test-Path $p) { Write-Output \"Purging EOL .NET 6 Directory: $p\"; Remove-Item -Path $p -Recurse -Force -ErrorAction SilentlyContinue } }",
+      "Write-Output 'Mitigation Complete.'"
+    ]
+  }
+
+  provisioner "powershell" {
+    inline = [
       "while ((Get-Service RdAgent).Status -ne 'Running') { Start-Sleep -s 5 }",
       "Write-Output 'Running sysprep and baseline...'",
       "& $env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /quiet /quit"
