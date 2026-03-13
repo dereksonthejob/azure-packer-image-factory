@@ -1,0 +1,50 @@
+name: Partner Center Commercial Marketplace Injection Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_offer:
+        description: "Select which Marketplace Offer topology to Mint/Publish"
+        required: true
+        type: choice
+        options:
+          - ubuntu-server
+          - rhel-server
+          - sql-server
+
+jobs:
+  Deploy_Marketplace_Metadata:
+    runs-on: ubuntu-latest
+    
+    # The runner must authenticate to Azure natively.
+    # The repository must map 'AZURE_CLIENT_ID', 'AZURE_TENANT_ID', and 'AZURE_CLIENT_SECRET' globally.
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+    steps:
+      - name: Checkout Image Factory Control Repository
+        uses: actions/checkout@v4
+        
+      - name: Initialize Python 3.10 Engine
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          
+      - name: Install MSAL & Microsoft Graph Subdependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests msal
+          
+      - name: Deploy Ubuntu Commercial Topology
+        if: ${{ github.event.inputs.target_offer == 'ubuntu-server' }}
+        run: python .github/scripts/marketplace/ubuntu_offer_automation.py
+
+      - name: Deploy Red Hat Pipeline
+        if: ${{ github.event.inputs.target_offer == 'rhel-server' }}
+        run: python .github/scripts/marketplace/rhel_offer_automation.py
+
+      - name: Deploy SQL Server 2025 Pipeline
+        if: ${{ github.event.inputs.target_offer == 'sql-server' }}
+        run: python .github/scripts/marketplace/sql_offer_automation.py
