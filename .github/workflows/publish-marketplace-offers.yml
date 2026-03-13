@@ -14,7 +14,7 @@ on:
 
 jobs:
   Deploy_Marketplace_Metadata:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vmss]
     
     # The runner must authenticate to Azure natively.
     # The repository must map 'AZURE_CLIENT_ID', 'AZURE_TENANT_ID', and 'AZURE_CLIENT_SECRET' globally.
