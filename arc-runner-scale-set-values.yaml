@@ -1,0 +1,41 @@
+# arc-runner-scale-set-values.yaml
+# Declarative configuration for the Actions Runner Controller via the K8s API.
+
+githubConfigUrl: "https://github.com/Derek-Coleman-Associates-Corporation/azure-packer-image-factory"
+
+# Name of the runner group.
+runnerGroup: "default"
+
+# Prevent KEDA from downscaling to 0 so the runner pods are not deleted entirely.
+# This ensures one runner is always 'warm' and prevents node-pool scale down deletions if desired.
+minRunners: 1
+maxRunners: 50
+
+# Request specific resources to map to our heavy AKS packerpool instances.
+template:
+  spec:
+    containers:
+      - name: runner
+        image: ghcr.io/actions/actions-runner:latest
+        command: ["/home/runner/run.sh"]
+        # Remove the --ephemeral flag if you want the exact same pod to survive between jobs
+        # without being deleted (though GitHub recommends Ephemeral for clean states).
+        # To make it persistent, uncomment this args block to default to persistent:
+        # args: ["--once"] # Note: Actions Runner natively uses ephemeral in scale sets.
+        
+        resources:
+          requests:
+            cpu: "2"
+            memory: "8Gi"
+          limits:
+            cpu: "8"
+            memory: "32Gi"
+            
+    # Pin these heavy runners specifically to the nested-virt node pool to prevent scaling/deleting
+    # general system nodes.
+    nodeSelector:
+      agentpool: packerpool
+    tolerations:
+      - key: "packer"
+        operator: "Exists"
+        effect: "NoSchedule"

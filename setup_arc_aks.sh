@@ -45,9 +45,9 @@ echo "Installing Actions Runner Controller (ARC)..."
 #   --wait actions-runner-controller actions-runner-controller/actions-runner-controller \
 #   --set syncPeriod=1m
 
-# Install ARC AutoScaling RunnerSet
-# helm install arc-runner-set \
+# Install ARC AutoScaling RunnerSet using declarative K8s values
+# helm install arc-packer-runners \
 #    --namespace arc-runners \
 #    --create-namespace \
-#    -f values.yaml \
+#    -f arc-runner-scale-set-values.yaml \
 #    oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
