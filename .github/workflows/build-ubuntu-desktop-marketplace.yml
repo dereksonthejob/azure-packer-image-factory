@@ -102,19 +102,10 @@ jobs:
           DISK_SIZE_GB: "64"
           ISO_SUFFIX: ${{ matrix.iso_suffix }}
         run: |
-          # Retrieve target build scripts
-          wget -qO build.sh https://raw.githubusercontent.com/Derek-Coleman-Associates-Corporation/sql2025-image-factory/main/image-capture-factory/scripts/build_ubuntu_desktop_iso_vhd.sh || true
-          
-          if [ ! -f ./image-capture-factory/scripts/build_ubuntu_desktop_iso_vhd.sh ]; then
-             mkdir -p ./image-capture-factory/scripts
-             mv build.sh ./image-capture-factory/scripts/build_ubuntu_desktop_iso_vhd.sh
-             chmod +x ./image-capture-factory/scripts/build_ubuntu_desktop_iso_vhd.sh
-          fi
-          
           # Patch script to use ISO_SUFFIX for the download URL if it's not currently picking it up right.
-          sed -i "s|ubuntu-\${ISO_VERSION}-desktop-\${ARCH}.iso|ubuntu-\${ISO_SUFFIX}|g" ./image-capture-factory/scripts/build_ubuntu_desktop_iso_vhd.sh || true
+          sed -i "s|ubuntu-\${ISO_VERSION}-desktop-\${ARCH}.iso|ubuntu-\${ISO_SUFFIX}|g" ./scripts/build_ubuntu_desktop_iso_vhd.sh || true
           
-          bash ./image-capture-factory/scripts/build_ubuntu_desktop_iso_vhd.sh
+          bash ./scripts/build_ubuntu_desktop_iso_vhd.sh
 
       - name: Map Outputs
         id: build_meta
