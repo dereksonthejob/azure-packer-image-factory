@@ -17,7 +17,7 @@ env:
 
 jobs:
   build_desktop_vhds:
-    runs-on: ['self-hosted', 'arc-packer-runners']
+    runs-on: 'arc-packer-runners'
     strategy:
       fail-fast: false
       matrix:

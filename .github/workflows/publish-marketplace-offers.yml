@@ -16,7 +16,7 @@ on:
 
 jobs:
   Deploy_Marketplace_Metadata:
-    runs-on: [self-hosted, arc-general-runners]
+    runs-on: arc-general-runners
     
     # The runner must authenticate to Azure natively.
     # The repository must map 'AZURE_CLIENT_ID', 'AZURE_TENANT_ID', and 'AZURE_CLIENT_SECRET' globally.

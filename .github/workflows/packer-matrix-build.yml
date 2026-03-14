@@ -37,7 +37,7 @@ jobs:
   build:
     name: Build Image ${{ matrix.profile }}
     needs: discover-profiles
-    runs-on: [self-hosted, "${{ inputs.runs_on_pool || 'vmss' }}"]
+    runs-on: "${{ inputs.runs_on_pool || 'arc-packer-runners' }}"
     timeout-minutes: 1440
     continue-on-error: true
     strategy:
