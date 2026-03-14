@@ -1,9 +1,6 @@
 name: Global Matrix Packer Build
 
 on:
-  push:
-    paths:
-      - '.trigger-packer-build'
   workflow_dispatch:
     inputs:
       image_version:
@@ -13,7 +10,7 @@ on:
       runs_on_pool:
         description: 'Runner pool to use'
         required: false
-        default: 'arc-packer-runners'
+        default: 'vmss'
         type: string
 
 permissions:
@@ -37,7 +34,7 @@ jobs:
   build:
     name: Build Image ${{ matrix.profile }}
     needs: discover-profiles
-    runs-on: "${{ inputs.runs_on_pool || 'arc-packer-runners' }}"
+    runs-on: [self-hosted, vmss]
     timeout-minutes: 1440
     continue-on-error: true
     strategy:
@@ -88,10 +85,7 @@ jobs:
         run: |
           if ! command -v az &> /dev/null; then
             echo "Installing Azure CLI locally using Python pip (rootless)..."
-            curl -sS https://bootstrap.pypa.io/get-pip.py | python3 - --user
-            export PATH="$HOME/.local/bin:$PATH"
-            python3 -m pip install --user azure-cli
-            echo "$HOME/.local/bin" >> $GITHUB_PATH
+            curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
             az --version
           fi
 
@@ -115,7 +109,7 @@ jobs:
           if [ "${{ steps.profile.outputs.os_family }}" == "linux" ]; then OS_TYPE="Linux"; fi
           
           HV_GEN="V1"
-          if [[ "${{ steps.profile.outputs.source_sku }}" == *"gen2"* ]] || [[ "${{ steps.profile.outputs.source_sku }}" == *"-g2"* ]] || [[ "${{ steps.profile.outputs.profile_id }}" == *"-gen2"* ]]; then
+          if [[ "${{ steps.profile.outputs.source_sku }}" == *"gen2"* ]]; then
             HV_GEN="V2"
           fi
           
