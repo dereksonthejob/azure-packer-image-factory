@@ -9,4 +9,4 @@ gallery:
   offer: ubuntu-server
   sku: 20_04-lts-gen2
 test:
-  vm_size: Standard_D4ads_v6
+  vm_size: Standard_E4s_v5
