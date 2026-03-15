@@ -1,11 +1,11 @@
-name: Build Ubuntu 24.10 Desktop
+name: Build Ubuntu 25.10 Desktop
 
 on:
   push:
     branches:
       - '**/'
     paths:
-      - '.github/workflows/build-ubuntu-2410-desktop.yml'
+      - '.github/workflows/build-ubuntu-2510-desktop.yml'
   workflow_dispatch:
 
 env:
@@ -14,12 +14,12 @@ env:
   GALLERY_NAME: "acgpackerfactoryeastus"
   GALLERY_RG: "RG-PACKER-IMAGE-FACTORY-EASTUS"
   LOCATION: "eastus"
-  ISO_VERSION: "24.10"
-  ISO_SERIES_PATH: "oracular"
+  ISO_VERSION: "25.10"
+  ISO_SERIES_PATH: "plucky"
   ARCH: "amd64"
-  OFFER: "ubuntu-desktop-2410"
-  IMGDEF: "imgdef-ubuntu-desktop-2410-gen2"
-  ISO_SUFFIX: "24.10-desktop-amd64.iso"
+  OFFER: "ubuntu-desktop-2510"
+  IMGDEF: "imgdef-ubuntu-desktop-2510-gen2"
+  ISO_SUFFIX: "25.10-desktop-amd64.iso"
 
 jobs:
   build_desktop_vhds:

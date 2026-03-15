@@ -12,6 +12,11 @@ on:
         required: false
         default: 'vmss'
         type: string
+      profile_filter:
+        description: 'Regex filter for specific profiles (e.g. "windows|sql" or ".*")'
+        required: false
+        default: '.*'
+        type: string
 
 permissions:
   id-token: write
@@ -27,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: |
-          PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | sort | jq -R -s -c 'split("\n")[:-1]')
+          PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | grep -iE "${{ inputs.profile_filter || '.*' }}" | sort | jq -R -s -c 'split("\n")[:-1]')
           echo "Discovered Profiles: $PROFILES"
           echo "matrix=$PROFILES" >> "$GITHUB_OUTPUT"
 

@@ -93,10 +93,10 @@ resource openAiService 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   }
 }
 
-// GPT-5.3-Codex Model Deployment
+// GPT-4o Model Deployment
 resource codexDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
   parent: openAiService
-  name: 'gpt-5.3-codex'
+  name: 'gpt-4o'
   sku: {
     name: 'Standard'
     capacity: 30
@@ -104,8 +104,8 @@ resource codexDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-5.3-codex'
-      version: '2026-01-01'
+      name: 'gpt-4o'
+      version: '2024-05-13'
     }
   }
 }

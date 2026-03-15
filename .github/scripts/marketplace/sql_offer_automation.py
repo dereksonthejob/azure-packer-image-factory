@@ -234,7 +234,9 @@ def main():
                 "$schema": "https://schema.mp.microsoft.com/schema/plan/2022-03-01-preview2",
                 "id": f"plan/{product_id}/{p_id}",
                 "product": f"product/{product_id}",
-                "name": p_title
+                "identity": {"externalId": p_id},
+                "alias": p_title,
+                "azureRegions": ["azureGlobal"]
             })
 
             # EXACT Plan Listing SEO configuration mapping directly to Memory store
@@ -311,7 +313,7 @@ def main():
                     "supportsAadLogin": True,
                     "networkVirtualAppliance": False
                 },
-                "vmImageVersions": [
+                "vmImageVersions": [] if os.environ.get("REMOVE_IMAGES") == "true" else [
                     {
                         "versionNumber": get_latest_gallery_version(img_def),
                         "vmImages": [
