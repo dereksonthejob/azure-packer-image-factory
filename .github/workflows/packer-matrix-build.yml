@@ -231,7 +231,7 @@ jobs:
           fi
 
       - name: Upload Global Build Errors
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: global-build-errors-${{ steps.profile.outputs.profile_id }}

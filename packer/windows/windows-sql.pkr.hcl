@@ -90,13 +90,24 @@ build {
     ]
   }
 
+  # First pass: apply all non-Preview Windows Updates
   provisioner "windows-update" {
     search_criteria = "IsInstalled=0"
     filters = [
       "exclude:$_.Title -like '*Preview*'",
       "include:$true"
     ]
-    update_limit = 25
+    update_limit = 1000
+  }
+
+  # Second pass: catch any updates that became available after the first reboot cycle
+  provisioner "windows-update" {
+    search_criteria = "IsInstalled=0"
+    filters = [
+      "exclude:$_.Title -like '*Preview*'",
+      "include:$true"
+    ]
+    update_limit = 1000
   }
 
 
