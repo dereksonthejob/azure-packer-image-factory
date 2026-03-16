@@ -10,13 +10,11 @@ env:
   GALLERY_RG: "RG-PACKER-IMAGE-FACTORY-EASTUS"
   LOCATION: "eastus"
   ISO_VERSION: "25.10"
-  ISO_SERIES_PATH: "plucky"
+  ISO_SERIES_PATH: "25.10"
   ARCH: "amd64"
   OFFER: "ubuntu-desktop-2510"
   IMGDEF: "imgdef-ubuntu-desktop-2510-gen2"
-  # 25.10 is superseded — use old-releases mirror for the final ISO
   ISO_SUFFIX: "25.10-desktop-amd64.iso"
-  ISO_BASE_URL: "https://old-releases.ubuntu.com/releases/25.10"
 
 jobs:
   build_desktop_vhds:
@@ -89,8 +87,6 @@ jobs:
           VM_CPUS: "2"
           DISK_SIZE_GB: "64"
           ISO_SUFFIX: ${{ env.ISO_SUFFIX }}
-          # Override ISO download URL to old-releases for 25.10
-          ISO_BASE_URL: ${{ env.ISO_BASE_URL }}
         run: |
           bash ./scripts/build_ubuntu_desktop_iso_vhd.sh
 
