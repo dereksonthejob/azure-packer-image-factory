@@ -58,8 +58,11 @@ source "azure-arm" "image" {
   communicator   = "winrm"
   winrm_use_ssl  = true
   winrm_insecure = true
-  winrm_timeout  = "2h"
+  winrm_timeout  = "30m"
   winrm_username = "packer"
+
+  # Cap ARM polling so a hung deployment fails fast instead of blocking for hours
+  polling_duration_timeout = "45m"
 
   azure_tags = var.azure_tags
 
@@ -108,7 +111,8 @@ build {
 
   provisioner "powershell" {
     inline = [
-      "while ((Get-Service RdAgent).Status -ne 'Running') { Start-Sleep -s 5 }",
+      "$deadline = (Get-Date).AddMinutes(10)",
+      "while ((Get-Service RdAgent).Status -ne 'Running') { if ((Get-Date) -gt $deadline) { throw 'Timed out waiting for RdAgent' }; Start-Sleep -s 5 }",
       "Write-Output 'Running sysprep and baseline...'",
       "& $env:SystemRoot\\System32\\Sysprep\\Sysprep.exe /oobe /generalize /quiet /quit"
     ]

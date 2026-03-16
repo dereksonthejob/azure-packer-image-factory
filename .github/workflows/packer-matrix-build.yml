@@ -40,11 +40,11 @@ jobs:
     name: Build Image ${{ matrix.profile }}
     needs: discover-profiles
     runs-on: [self-hosted, vmss]
-    timeout-minutes: 1440
+    timeout-minutes: 210
     continue-on-error: true
     strategy:
       fail-fast: false
-      max-parallel: 8
+      max-parallel: 12
       matrix:
         profile: ${{ fromJson(needs.discover-profiles.outputs.matrix) }}
     steps:
@@ -98,6 +98,8 @@ jobs:
             sudo apt-get update
             sudo DEBIAN_FRONTEND=noninteractive apt-get install azure-cli -y
             az --version
+          else
+            echo "Azure CLI already present: $(az version --query '\"azure-cli\"' -o tsv)"
           fi
 
       - name: Setup Azure Credentials
@@ -108,6 +110,13 @@ jobs:
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
+
+      - name: Cache Packer Plugins
+        uses: actions/cache@v4
+        with:
+          path: ~/.config/packer/plugins
+          key: packer-plugins-${{ runner.os }}-${{ hashFiles('packer/**/*.pkr.hcl') }}
+          restore-keys: packer-plugins-${{ runner.os }}-
 
       - name: Ensure Image Definition Exists
         shell: bash
@@ -201,19 +210,25 @@ jobs:
         run: |
           echo "Packer Build Failed for ${{ matrix.profile }}. Extracting error tail..."
           mkdir -p evidence/failures
-          tail -n 50 packerbuild.log > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
+          tail -n 100 packerbuild.log > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
+          # Also surface WinRM/timeout errors explicitly
+          grep -i "error\|timeout\|failed\|winrm" packerbuild.log | tail -n 30 >> "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt" || true
 
       - name: Cleanup Stranded Packer VMs
         if: always()
         shell: bash
         run: |
-          echo "Scanning for and deleting orphaned Packer Resource Groups..."
-          # Match precisely the expected Packer temporary naming scheme per workflow ID
-          STRANDED_RGS=$(az group list --query "[?starts_with(name, 'pkr-Resource-Group-')].name" -o tsv)
-          for rg in $STRANDED_RGS; do
-            echo "Attempting cleanup on stranded Resource Group: $rg"
-            az group delete --name "$rg" --yes --no-wait || echo "Failed to delete $rg"
-          done
+          echo "Scanning for orphaned Packer Resource Groups scoped to run ${{ github.run_id }}..."
+          # Scope cleanup strictly to this run_id to avoid collisions across concurrent runs
+          STRANDED_RGS=$(az group list --query "[?starts_with(name, 'pkr-Resource-Group-') && contains(name, '${{ github.run_id }}')].name" -o tsv 2>/dev/null || true)
+          if [[ -z "$STRANDED_RGS" ]]; then
+            echo "No stranded resource groups found for run ${{ github.run_id }}."
+          else
+            for rg in $STRANDED_RGS; do
+              echo "Deleting stranded Resource Group: $rg"
+              az group delete --name "$rg" --yes --no-wait || echo "Failed to delete $rg"
+            done
+          fi
 
       - name: Upload Global Build Errors
         if: failure()
