@@ -1,0 +1,65 @@
+name: Certification Report Scan
+
+on:
+  workflow_dispatch:        # Manual trigger — run on demand from GitHub UI
+  schedule:
+    - cron: '0 8 * * 1,4'  # Auto-run every Monday + Thursday at 08:00 UTC
+
+jobs:
+  scan-certification-reports:
+    name: Scan All Offers for CVE Failures
+    runs-on: [self-hosted]
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: feature/cert-report-scan   # Runs from this branch
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install requests msal --quiet
+
+      - name: Run Certification Report Scanner
+        id: cert_scan
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: python .github/scripts/marketplace/certification_report_scan.py
+        # Script exits 1 if CVE issues are found, which fails this step and
+        # surfaces the ::error annotation in the GitHub Actions summary
+
+      - name: Upload Full JSON Report as Artifact
+        if: always()    # Upload even if the scan step fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: certification-scan-report-${{ github.run_number }}
+          path: certification_scan_report.json
+          retention-days: 30
+
+      - name: Post CVE Summary to Job Summary
+        if: always()
+        run: |
+          echo "## 📋 Certification Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Run: \`${{ github.run_number }}\` | Branch: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f certification_scan_report.json ]; then
+            # Count offers needing CVE updates
+            CVE_COUNT=$(python3 -c "
+import json, sys
+data = json.load(open('certification_scan_report.json'))
+cve = [d for d in data if d.get('needs_cve_update')]
+print(len(cve))
+for d in cve:
+    print(f\"- **{d['product']}**: {len(d['cve_issues'])} CVE issue(s)\")
+")
+            echo "$CVE_COUNT" >> $GITHUB_STEP_SUMMARY
+          fi
