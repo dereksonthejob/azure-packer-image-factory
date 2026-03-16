@@ -1,0 +1,12 @@
+profile_id: ws2025-datacenter-azure-edition
+os_family: windows
+# Windows Server 2025 Datacenter Azure Edition Gen2 — hotpatch + Azure-native features
+source_image_urn: MicrosoftWindowsServer:WindowsServer:2025-datacenter-azure-edition:latest
+security_type: TrustedLaunchSupported
+gallery:
+  image_definition: imgdef-ws2025-datacenter-azure-edition-gen2
+  publisher: DerekColeman
+  offer: windows-server-2025
+  sku: datacenter-azure-edition-gen2
+test:
+  vm_size: Standard_D4s_v5

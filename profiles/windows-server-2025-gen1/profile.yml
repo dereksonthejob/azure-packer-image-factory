@@ -1,0 +1,11 @@
+profile_id: windows-server-2025-gen1
+os_family: windows
+# Windows Server 2025 Datacenter Gen1 — broadest compatibility for older VM families
+source_image_urn: MicrosoftWindowsServer:WindowsServer:2025-datacenter:latest
+gallery:
+  image_definition: imgdef-ws2025-datacenter-gen1
+  publisher: DerekColeman
+  offer: windows-server-2025
+  sku: datacenter-gen1
+test:
+  vm_size: Standard_D4s_v5

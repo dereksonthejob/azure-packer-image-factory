@@ -110,21 +110,41 @@ resource codexDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-
   }
 }
 
-// ML Compute Instance (Execution environment for the agent)
+// ML Compute Instance (Execution environment for the agent — Always-On)
 resource agentCompute 'Microsoft.MachineLearningServices/workspaces/computes@2024-04-01-preview' = {
   parent: aiProject
   name: 'agent-codex-ci-01'
   location: location
+  identity: {
+    type: 'SystemAssigned'  // Managed Identity for Key Vault secret access
+  }
   properties: {
     computeType: 'ComputeInstance'
     disableLocalAuth: true
     properties: {
-      vmSize: 'Standard_DS3_v2'
-      idleTimeBeforeShutdown: 'PT30M' // Auto-shutdown after 30 mins to save costs
+      vmSize: 'Standard_D4s_v3'  // 4 vCPU, 16GB — required for Puppeteer + multi-agent
+      idleTimeBeforeShutdown: 'PT0S'  // Always-on — never auto-shutdown
     }
+  }
+}
+
+// KV = Key Vault resource alias (reference only, not created here — assumed pre-existing)
+resource existingKeyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  name: keyVaultName
+}
+
+// Grant Compute Instance Managed Identity the Key Vault Secrets User role
+resource kvSecretUserRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(existingKeyVault.id, agentCompute.id, '4633458b-17de-408a-b874-0445c86b69e6')
+  scope: existingKeyVault
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6') // Key Vault Secrets User
+    principalId: agentCompute.identity.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 
 output aiProjectName string = aiProject.name
 output computeInstanceName string = agentCompute.name
 output codexEndpoint string = openAiService.properties.endpoint
+output agentComputePrincipalId string = agentCompute.identity.principalId

@@ -1,0 +1,12 @@
+profile_id: windows-server-2019-core-gen2
+os_family: windows
+# Windows Server 2019 Datacenter Core Gen2 — headless/minimal, lower attack surface
+source_image_urn: MicrosoftWindowsServer:WindowsServer:2019-datacenter-core-g2:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-windows-server-2019-core-gen2
+  publisher: MicrosoftWindowsServer
+  offer: WindowsServer
+  sku: 2019-datacenter-core-g2
+vm_size: Standard_D4s_v5
