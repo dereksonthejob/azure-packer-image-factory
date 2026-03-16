@@ -1,11 +1,6 @@
 name: Build Ubuntu 24.04 Desktop
 
 on:
-  push:
-    branches:
-      - '**/'
-    paths:
-      - '.github/workflows/build-ubuntu-2404-desktop.yml'
   workflow_dispatch:
 
 env:
@@ -23,7 +18,8 @@ env:
 
 jobs:
   build_desktop_vhds:
-    runs-on: [self-hosted, linux, azure, vmss]
+    runs-on: [self-hosted, vmss]
+    timeout-minutes: 210
 
     steps:
       - name: Checkout Code
@@ -82,19 +78,16 @@ jobs:
 
       - name: Build VHD using QEMU
         env:
-          ISO_VERSION: ${{ matrix.version }}
-          ISO_SERIES_PATH: ${{ matrix.series }}
-          ARCH: ${{ matrix.arch }}
+          ISO_VERSION: ${{ env.ISO_VERSION }}
+          ISO_SERIES_PATH: ${{ env.ISO_SERIES_PATH }}
+          ARCH: ${{ env.ARCH }}
           WORK_DIR: ${{ github.workspace }}/work
           OUT_DIR: ${{ github.workspace }}/out
           VM_MEMORY_MB: "4096"
           VM_CPUS: "2"
           DISK_SIZE_GB: "64"
-          ISO_SUFFIX: ${{ matrix.iso_suffix }}
+          ISO_SUFFIX: ${{ env.ISO_SUFFIX }}
         run: |
-          # Patch script to use ISO_SUFFIX for the download URL if it's not currently picking it up right.
-          sed -i "s|ubuntu-\${ISO_VERSION}-desktop-\${ARCH}.iso|ubuntu-\${ISO_SUFFIX}|g" ./scripts/build_ubuntu_desktop_iso_vhd.sh || true
-          
           bash ./scripts/build_ubuntu_desktop_iso_vhd.sh
 
       - name: Map Outputs
@@ -140,9 +133,9 @@ jobs:
           az sig image-definition create \
              --resource-group ${{ env.GALLERY_RG }} \
              --gallery-name ${{ env.GALLERY_NAME }} \
-             --gallery-image-definition ${{ matrix.imgdef }} \
+             --gallery-image-definition ${{ env.IMGDEF }} \
              --publisher "dcassociatesgroup" \
-             --offer ${{ matrix.offer }} \
+             --offer ${{ env.OFFER }} \
              --sku "desktop" \
              --os-type Linux \
              --os-state Generalized \

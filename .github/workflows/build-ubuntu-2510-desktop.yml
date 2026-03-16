@@ -1,11 +1,6 @@
 name: Build Ubuntu 25.10 Desktop
 
 on:
-  push:
-    branches:
-      - '**/'
-    paths:
-      - '.github/workflows/build-ubuntu-2510-desktop.yml'
   workflow_dispatch:
 
 env:
@@ -19,11 +14,14 @@ env:
   ARCH: "amd64"
   OFFER: "ubuntu-desktop-2510"
   IMGDEF: "imgdef-ubuntu-desktop-2510-gen2"
+  # 25.10 is superseded — use old-releases mirror for the final ISO
   ISO_SUFFIX: "25.10-desktop-amd64.iso"
+  ISO_BASE_URL: "https://old-releases.ubuntu.com/releases/25.10"
 
 jobs:
   build_desktop_vhds:
-    runs-on: [self-hosted, linux, azure, vmss]
+    runs-on: [self-hosted, vmss]
+    timeout-minutes: 210
 
     steps:
       - name: Checkout Code
@@ -82,19 +80,18 @@ jobs:
 
       - name: Build VHD using QEMU
         env:
-          ISO_VERSION: ${{ matrix.version }}
-          ISO_SERIES_PATH: ${{ matrix.series }}
-          ARCH: ${{ matrix.arch }}
+          ISO_VERSION: ${{ env.ISO_VERSION }}
+          ISO_SERIES_PATH: ${{ env.ISO_SERIES_PATH }}
+          ARCH: ${{ env.ARCH }}
           WORK_DIR: ${{ github.workspace }}/work
           OUT_DIR: ${{ github.workspace }}/out
           VM_MEMORY_MB: "4096"
           VM_CPUS: "2"
           DISK_SIZE_GB: "64"
-          ISO_SUFFIX: ${{ matrix.iso_suffix }}
+          ISO_SUFFIX: ${{ env.ISO_SUFFIX }}
+          # Override ISO download URL to old-releases for 25.10
+          ISO_BASE_URL: ${{ env.ISO_BASE_URL }}
         run: |
-          # Patch script to use ISO_SUFFIX for the download URL if it's not currently picking it up right.
-          sed -i "s|ubuntu-\${ISO_VERSION}-desktop-\${ARCH}.iso|ubuntu-\${ISO_SUFFIX}|g" ./scripts/build_ubuntu_desktop_iso_vhd.sh || true
-          
           bash ./scripts/build_ubuntu_desktop_iso_vhd.sh
 
       - name: Map Outputs
@@ -140,9 +137,9 @@ jobs:
           az sig image-definition create \
              --resource-group ${{ env.GALLERY_RG }} \
              --gallery-name ${{ env.GALLERY_NAME }} \
-             --gallery-image-definition ${{ matrix.imgdef }} \
+             --gallery-image-definition ${{ env.IMGDEF }} \
              --publisher "dcassociatesgroup" \
-             --offer ${{ matrix.offer }} \
+             --offer ${{ env.OFFER }} \
              --sku "desktop" \
              --os-type Linux \
              --os-state Generalized \

@@ -21,8 +21,10 @@ BUILD_TIMEOUT_SEC="${BUILD_TIMEOUT_SEC:-21600}"
 QEMU_ACCEL="${QEMU_ACCEL:-auto}"
 REQUIRE_KVM="${REQUIRE_KVM:-false}"
 
-ISO_FILE="ubuntu-${ISO_VERSION}-desktop-${ARCH}.iso"
-ISO_URL="https://releases.ubuntu.com/${ISO_SERIES_PATH}/${ISO_FILE}"
+ISO_FILE="ubuntu-${ISO_SUFFIX:-${ISO_VERSION}-desktop-${ARCH}.iso}"
+# ISO_BASE_URL can be overridden (e.g. to old-releases.ubuntu.com for superseded versions)
+_DEFAULT_BASE_URL="https://releases.ubuntu.com/${ISO_SERIES_PATH}"
+ISO_URL="${ISO_BASE_URL:-${_DEFAULT_BASE_URL}}/${ISO_FILE}"
 RAW_FILE="ubuntu-desktop-${ISO_VERSION}-autoinstall-${ARCH}.raw"
 VHD_FILE="ubuntu-desktop-${ISO_VERSION}-autoinstall-${ARCH}.vhd"
 META_JSON="ubuntu-desktop-${ISO_VERSION}-autoinstall-${ARCH}.metadata.json"
