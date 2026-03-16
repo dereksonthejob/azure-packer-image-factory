@@ -152,7 +152,7 @@ jobs:
             sudo DEBIAN_FRONTEND=noninteractive apt-get install azure-cli -y
             az --version
           else
-            echo "Azure CLI already present: $(az version --query '\"azure-cli\"' -o tsv)"
+            echo "Azure CLI already present: $(az version -o tsv 2>/dev/null | head -1)"
           fi
 
       - name: Setup Azure Credentials
