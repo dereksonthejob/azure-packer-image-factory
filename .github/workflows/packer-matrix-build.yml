@@ -259,6 +259,15 @@ jobs:
             "${EXTRA_VARS[@]}" \
             "$TEMPLATE_FILE" 2>&1 | tee packerbuild.log
 
+      - name: Generate Patch Report
+        if: success() && steps.profile.outputs.os_family == 'windows'
+        shell: bash
+        run: |
+          chmod +x .github/scripts/generate-patch-report.sh
+          .github/scripts/generate-patch-report.sh \
+            "${{ steps.profile.outputs.profile_id }}" \
+            "packerbuild.log"
+
       - name: Capture Build Failures
         if: failure()
         shell: bash
