@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  STORAGE_ACCOUNT: "uploadsofpublicdocs"
+  STORAGE_ACCOUNT: "packervhdseastus"
   STORAGE_CONTAINER: "vhds"
   GALLERY_NAME: "2024_Production_Windows_All"
   GALLERY_RG: "SMALLDISKHOTPATCH_GROUP"
