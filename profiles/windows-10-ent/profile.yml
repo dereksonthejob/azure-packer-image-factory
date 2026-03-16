@@ -1,0 +1,12 @@
+profile_id: windows-10-ent
+os_family: windows
+# Windows 10 Enterprise single-session — 22H2 (final Win10 feature update)
+source_image_urn: MicrosoftWindowsDesktop:Windows-10:win10-22h2-avd:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-windows-10-ent-gen2
+  publisher: DerekColeman
+  offer: windows-10-ent
+  sku: win10-22h2-ent
+vm_size: Standard_D4s_v3

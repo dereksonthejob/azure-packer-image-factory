@@ -1,0 +1,11 @@
+profile_id: windows-11-pro
+os_family: windows
+source_image_urn: MicrosoftWindowsDesktop:windows-11:win11-24h2-pro:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-windows-11-pro-gen2
+  publisher: DerekColeman
+  offer: windows-11-pro
+  sku: win11-24h2-pro
+vm_size: Standard_D4s_v3

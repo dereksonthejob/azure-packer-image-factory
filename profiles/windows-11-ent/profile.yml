@@ -1,0 +1,11 @@
+profile_id: windows-11-ent
+os_family: windows
+source_image_urn: MicrosoftWindowsDesktop:windows-11:win11-24h2-ent:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-windows-11-ent-gen2
+  publisher: DerekColeman
+  offer: windows-11-ent
+  sku: win11-24h2-ent
+vm_size: Standard_D4s_v3

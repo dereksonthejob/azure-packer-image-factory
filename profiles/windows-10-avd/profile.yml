@@ -1,0 +1,13 @@
+profile_id: windows-10-avd
+os_family: windows
+# Windows 10 Enterprise Multi-Session — Azure Virtual Desktop / VDI
+# Latest available: 22H2 (19045.x) — final feature update for Win10
+source_image_urn: MicrosoftWindowsDesktop:Windows-10:win10-22h2-avd-g2:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-windows-10-avd-gen2
+  publisher: DerekColeman
+  offer: windows-10-avd
+  sku: win10-22h2-avd
+vm_size: Standard_D4s_v3
