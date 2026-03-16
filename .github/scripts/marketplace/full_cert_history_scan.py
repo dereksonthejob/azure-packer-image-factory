@@ -57,17 +57,26 @@ def safe_get(url, headers, label=""):
 
 def list_all_products(headers):
     """
-    Enumerate every product in the Partner Center account.
-    Uses Graph Ingestion API: GET /product (paginated).
-    Only returns VM and Container offers by default (can be extended).
+    Enumerate every product in the Partner Center account via Graph Ingestion API.
+    GET /product (paginated). Requires SP to have 'Developer' role in Partner Center.
+    Returns (products_list, http_status_code)
     """
     url = f"{GRAPH_BASE}/product{GRAPH_API_VER}"
     products = []
+    last_status = 200
     while url:
-        data = safe_get(url, headers, "list products")
-        products.extend(data.get("value", []))
-        url = data.get("@nextLink")
-    return products
+        try:
+            r = requests.get(url, headers=headers, timeout=20)
+            last_status = r.status_code
+            if r.status_code != 200:
+                return [], last_status
+            data = r.json()
+            products.extend(data.get("value", []))
+            url = data.get("@nextLink")
+        except Exception as e:
+            print(f"  [NET ERROR] list products: {e}")
+            return [], 0
+    return products, last_status
 
 
 def list_submissions(product_id, headers):
@@ -244,14 +253,32 @@ def main():
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     print("✅ Authenticated.\n")
 
-    print("Discovering all Partner Center offers...")
-    products = list_all_products(headers)
-    if not products:
-        print("[WARN] No products returned. Check SP has 'Developer' role in "
-              "Commercial Marketplace program in Partner Center.")
+    print("Discovering all Partner Center offers via API...")
+    products, http_status = list_all_products(headers)
+
+    if http_status == 403:
+        print(
+            "[HTTP 403] GET /product denied. The SP needs 'Developer' role in\n"
+            "  Partner Center → Account settings → User management → Assign role.\n"
+            "  Falling back to PRODUCT_IDS environment variable (comma-separated GUIDs)."
+        )
+        env_ids = os.environ.get("PRODUCT_IDS", "")
+        if not env_ids.strip():
+            print("[ERROR] PRODUCT_IDS not set. Cannot proceed without product list.")
+            sys.exit(1)
+        # Build synthetic product records from the env var GUIDs
+        products = [
+            {"id": f"product/{pid.strip()}", "type": "azureVirtualMachine",
+             "alias": pid.strip(), "identity": {"externalId": pid.strip()}}
+            for pid in env_ids.split(",") if pid.strip()
+        ]
+        print(f"  Loaded {len(products)} product(s) from PRODUCT_IDS env var.")
+    elif not products:
+        print("[WARN] No products returned. Check SP has 'Developer' role in\n"
+              "  Commercial Marketplace program in Partner Center.")
         sys.exit(0)
 
-    # Filter to VM and Container offers only (skip consulting services, SaaS etc)
+    # Filter to VM and Container offers only
     vm_types = {"azureVirtualMachine", "azureContainer"}
     vm_products = [p for p in products if p.get("type") in vm_types]
     print(f"  Found {len(products)} total offer(s), {len(vm_products)} VM/Container offer(s):\n")
