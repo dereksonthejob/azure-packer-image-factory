@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
 
 env:
-  STORAGE_ACCOUNT: "vhdstoragefactory"
-  STORAGE_CONTAINER: "isos"
-  GALLERY_NAME: "acgpackerfactoryeastus"
-  GALLERY_RG: "RG-PACKER-IMAGE-FACTORY-EASTUS"
+  STORAGE_ACCOUNT: "uploadsofpublicdocs"
+  STORAGE_CONTAINER: "vhds"
+  GALLERY_NAME: "2024_Production_Windows_All"
+  GALLERY_RG: "SMALLDISKHOTPATCH_GROUP"
   LOCATION: "eastus"
   ISO_VERSION: "24.04.4"
   ISO_SERIES_PATH: "noble"
@@ -149,7 +149,7 @@ jobs:
           az sig image-version create \
              --resource-group ${{ env.GALLERY_RG }} \
              --gallery-name ${{ env.GALLERY_NAME }} \
-             --gallery-image-definition ${{ matrix.imgdef }} \
+             --gallery-image-definition ${{ env.IMGDEF }} \
              --gallery-image-version $VERSION \
              --os-vhd-uri "${{ steps.sas.outputs.vhd_uri }}" \
              --os-vhd-storage-account ${{ env.STORAGE_ACCOUNT }} \
