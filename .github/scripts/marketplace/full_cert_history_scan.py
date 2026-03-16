@@ -25,8 +25,13 @@ CVE_KEYWORDS = [
     "end of life", "end-of-life", "eol", "deprecated"
 ]
 
-BASE = "https://graph.microsoft.com/rp/product-ingestion"
-API_VER = "?api-version=2022-03-01-preview2"
+# Partner Center REST API — used for listing all products
+PC_API = "https://api.partner.microsoft.com"
+PC_SCOPE = "https://api.partner.microsoft.com/.default"
+
+# Graph Ingestion API — used for submissions and validations
+GRAPH_BASE = "https://graph.microsoft.com/rp/product-ingestion"
+GRAPH_API_VER = "?api-version=2022-03-01-preview2"
 
 
 def get_token(client_id, tenant_id, client_secret, scope):
@@ -52,29 +57,34 @@ def safe_get(url, headers, label=""):
         return {}
 
 
-def list_all_products(headers):
-    """Enumerate every product in the Partner Center account."""
-    url = f"{BASE}/product{API_VER}"
+def list_all_products(pc_headers):
+    """
+    Enumerate every product using the Partner Center REST API.
+    Endpoint: GET https://api.partner.microsoft.com/v1.0/ingestion/products
+    This requires scope https://api.partner.microsoft.com/.default
+    """
+    url = f"{PC_API}/v1.0/ingestion/products?api-version=2022-07-01"
     products = []
     while url:
-        data = safe_get(url, headers, "list products")
-        products.extend(data.get("value", []))
+        data = safe_get(url, pc_headers, "list products")
+        for item in data.get("value", []):
+            products.append(item)
         url = data.get("@nextLink")
     return products
 
 
-def list_submissions(product_id, headers):
+def list_submissions(product_id, graph_headers):
     """Return all historical submissions for a product, newest first."""
-    url = f"{BASE}/submissions{API_VER}&product=product/{product_id}"
-    data = safe_get(url, headers, f"submissions {product_id}")
+    url = f"{GRAPH_BASE}/submissions{GRAPH_API_VER}&product=product/{product_id}"
+    data = safe_get(url, graph_headers, f"submissions {product_id}")
     subs = data.get("value", [])
     return sorted(subs, key=lambda s: s.get("createdDateTime", ""), reverse=True)
 
 
-def get_validations(submission_id, headers):
+def get_validations(submission_id, graph_headers):
     """Fetch validation errors for a specific submission."""
-    url = f"{BASE}/submissions/{submission_id}/validations{API_VER}"
-    data = safe_get(url, headers, f"validations {submission_id}")
+    url = f"{GRAPH_BASE}/submissions/{submission_id}/validations{GRAPH_API_VER}"
+    data = safe_get(url, graph_headers, f"validations {submission_id}")
     # Handle both response shapes
     if "value" in data:
         return data["value"]
@@ -103,7 +113,7 @@ def extract_text(v):
     return " | ".join(parts)
 
 
-def scan_product(product_id, product_name, headers):
+def scan_product(product_id, product_name, graph_headers):
     result = {
         "product": product_name,
         "product_id": product_id,
@@ -114,7 +124,7 @@ def scan_product(product_id, product_name, headers):
         "partner_center_base_url": f"https://partner.microsoft.com/en-us/dashboard/commercial-marketplace/offers/{product_id}",
     }
 
-    submissions = list_submissions(product_id, headers)
+    submissions = list_submissions(product_id, graph_headers)
     result["submissions_scanned"] = len(submissions)
 
     for sub in submissions:
@@ -123,7 +133,7 @@ def scan_product(product_id, product_name, headers):
         created = sub.get("createdDateTime", "N/A")
         report_url = f"https://partner.microsoft.com/en-us/dashboard/commercial-marketplace/offers/{product_id}/certification/reports/{sub_id}"
 
-        validations = get_validations(sub_id, headers)
+        validations = get_validations(sub_id, graph_headers)
 
         cve_issues = []
         other_issues = []
@@ -222,12 +232,17 @@ def main():
         sys.exit(1)
 
     print("Authenticating to Microsoft Graph API...")
-    token = get_token(client_id, tenant_id, client_secret, "https://graph.microsoft.com/.default")
-    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    print("✅ Authenticated.\n")
+    graph_token = get_token(client_id, tenant_id, client_secret, "https://graph.microsoft.com/.default")
+    graph_headers = {"Authorization": f"Bearer {graph_token}", "Content-Type": "application/json"}
+    print("✅ Graph API authenticated.")
+
+    print("Authenticating to Partner Center API...")
+    pc_token = get_token(client_id, tenant_id, client_secret, PC_SCOPE)
+    pc_headers = {"Authorization": f"Bearer {pc_token}", "Content-Type": "application/json"}
+    print("✅ Partner Center API authenticated.\n")
 
     print("Discovering all Partner Center offers...")
-    products = list_all_products(headers)
+    products = list_all_products(pc_headers)
     if not products:
         print("[WARN] No products returned. Check SP role (must be 'Developer' in Commercial Marketplace).")
         sys.exit(0)
@@ -245,7 +260,7 @@ def main():
         pid = p.get("id", "").replace("product/", "")
         pname = p.get("name", p.get("externalId", pid))
         print(f"  → {pname}  [{pid}]")
-        result = scan_product(pid, pname, headers)
+        result = scan_product(pid, pname, graph_headers)
         findings.append(result)
         print(f"       {result['submissions_scanned']} submission(s) scanned  |  "
               f"CVE: {'⚠️ YES' if result['needs_cve_update'] else '✅ clean'}")
