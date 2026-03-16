@@ -52,7 +52,7 @@ jobs:
           LOCATION="eastus"
           # vCPUs consumed per job: most profiles use Standard_E4s_v5 = 4 vCPUs
           # max-parallel is 4, so peak demand = 4 × 4 = 16 vCPUs
-          MAX_PARALLEL=4
+          MAX_PARALLEL=7
           VCPUS_PER_BUILD=4
           REQUIRED=$((MAX_PARALLEL * VCPUS_PER_BUILD))
 
@@ -65,12 +65,12 @@ jobs:
           REGIONAL_LIMIT=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue=="Total Regional vCPUs") | .limit')
           REGIONAL_AVAIL=$((REGIONAL_LIMIT - REGIONAL_USED))
 
-          ESV5_USED=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("ESv5")) | .currentValue' | head -1)
-          ESV5_LIMIT=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("ESv5")) | .limit' | head -1)
-          ESV5_AVAIL=$((ESV5_LIMIT - ESV5_USED))
+          DSV3_USED=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("DSv3")) | .currentValue' | head -1)
+          DSV3_LIMIT=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("DSv3")) | .limit' | head -1)
+          DSV3_AVAIL=$((DSV3_LIMIT - DSV3_USED))
 
           echo "Regional vCPUs: $REGIONAL_USED used / $REGIONAL_LIMIT limit → $REGIONAL_AVAIL available"
-          echo "Standard ESv5  : $ESV5_USED used / $ESV5_LIMIT limit → $ESV5_AVAIL available"
+          echo "Standard DSv3  : $DSV3_USED used / $DSV3_LIMIT limit → $DSV3_AVAIL available"
           echo "Required for this run: $REQUIRED vCPUs"
 
           WARN=false
@@ -78,8 +78,8 @@ jobs:
             echo "::warning ::QUOTA RISK: Only $REGIONAL_AVAIL Regional vCPUs available, need $REQUIRED. Builds may fail with quota errors."
             WARN=true
           fi
-          if [ "$ESV5_AVAIL" -lt "$REQUIRED" ]; then
-            echo "::warning ::QUOTA RISK: Only $ESV5_AVAIL ESv5 vCPUs available, need $REQUIRED. Most profiles use Standard_E4s_v5."
+          if [ "$DSV3_AVAIL" -lt "$REQUIRED" ]; then
+            echo "::warning ::QUOTA RISK: Only $DSV3_AVAIL DSv3 vCPUs available, need $REQUIRED. All profiles use Standard_D4s_v3."
             WARN=true
           fi
 
@@ -97,7 +97,7 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 7
       matrix:
         profile: ${{ fromJson(needs.discover-profiles.outputs.matrix) }}
     steps:
