@@ -10,4 +10,4 @@ gallery:
   offer: ubuntu-22_04-lts
   sku: server
 test:
-  vm_size: Standard_E4s_v5
+  vm_size: Standard_D4s_v3
