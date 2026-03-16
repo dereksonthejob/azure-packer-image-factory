@@ -110,6 +110,19 @@ build {
     update_limit = 1000
   }
 
+  # Generate structured markdown patch report (pre→post diff + source image metadata)
+  provisioner "powershell" {
+    scripts = [
+      "${path.root}/../../scripts/generate-patch-report-windows.ps1"
+    ]
+  }
+
+  # Download patch-report.md + CSVs from VM to runner working dir for artifact upload
+  provisioner "file" {
+    source      = "C:\\PatchReport\\"
+    destination = "patch-report"
+    direction   = "download"
+  }
 
   provisioner "powershell" {
     inline = [

@@ -296,5 +296,6 @@ jobs:
             evidence/
             packerbuild.log
             packer-debug.log
+            patch-report/
           retention-days: 7
 
