@@ -145,16 +145,24 @@ jobs:
           echo "temp_rg=rg-packer-temp-${profile_id}-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
 
       - name: Ensure CLI Prerequisites
+        shell: bash
         run: |
           if ! command -v az &> /dev/null; then
-            echo "Installing Azure CLI via non-interactive apt injection..."
-            sudo apt-get update
-            sudo apt-get install -y ca-certificates curl apt-transport-https lsb-release gnupg
-            curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+            echo "Azure CLI not found — installing via non-interactive apt..."
+            # Use sudo -n (non-interactive, never prompt for password) so the step
+            # fails fast with a clear error if passwordless sudo is not configured,
+            # rather than hanging on a terminal password prompt.
+            export DEBIAN_FRONTEND=noninteractive
+            sudo -n apt-get update -qq
+            sudo -n apt-get install -y -qq ca-certificates curl apt-transport-https lsb-release gnupg
+            curl -sL https://packages.microsoft.com/keys/microsoft.asc \
+              | gpg --dearmor \
+              | sudo -n tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
             export AZ_REPO=$(lsb_release -cs)
-            echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-            sudo apt-get update
-            sudo DEBIAN_FRONTEND=noninteractive apt-get install azure-cli -y
+            echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" \
+              | sudo -n tee /etc/apt/sources.list.d/azure-cli.list
+            sudo -n apt-get update -qq
+            sudo -n DEBIAN_FRONTEND=noninteractive apt-get install azure-cli -y -qq
             az --version
           else
             echo "Azure CLI already present: $(az version -o tsv 2>/dev/null | head -1)"
@@ -279,9 +287,14 @@ jobs:
         run: |
           echo "Packer Build Failed for ${{ matrix.profile }}. Extracting error tail..."
           mkdir -p evidence/failures
-          tail -n 100 packerbuild.log > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
-          # Also surface WinRM/timeout errors explicitly
-          grep -i "error\|timeout\|failed\|winrm" packerbuild.log | tail -n 30 >> "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt" || true
+          # Guard: packerbuild.log only exists if packer actually ran; skip gracefully if not
+          if [ -f packerbuild.log ]; then
+            tail -n 100 packerbuild.log > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
+            grep -i "error\|timeout\|failed\|winrm" packerbuild.log | tail -n 30 >> "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt" || true
+          else
+            echo "packerbuild.log not found — build failed before packer started (pre-flight step failure)" \
+              > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
+          fi
           # Copy debug log into evidence if it exists
           [ -f packer-debug.log ] && cp packer-debug.log "evidence/failures/packer-debug-${{ steps.profile.outputs.profile_id }}.log" || true
 
