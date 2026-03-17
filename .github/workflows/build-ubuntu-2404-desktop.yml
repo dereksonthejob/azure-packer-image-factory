@@ -101,13 +101,14 @@ jobs:
           # Ensure target container exists
           az storage container create --name ${{ env.STORAGE_CONTAINER }} --account-name ${{ env.STORAGE_ACCOUNT }} --auth-mode login || true
           
-          # Copy to Blob
+          # Copy to Blob (--overwrite handles re-runs where the blob already exists)
           az storage blob upload \
             --account-name ${{ env.STORAGE_ACCOUNT }} \
             --container-name ${{ env.STORAGE_CONTAINER }} \
             --name "${{ env.VHD_FILE }}" \
             --file "${{ github.workspace }}/out/${{ env.VHD_FILE }}" \
-            --auth-mode login
+            --auth-mode login \
+            --overwrite
 
       - name: Generate Shared Access Signature
         id: sas
