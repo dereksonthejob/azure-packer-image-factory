@@ -147,10 +147,10 @@ jobs:
       - name: Publish to Compute Gallery
         run: |
           VERSION="1.0.${{ github.run_number }}"
-          # Resolve full resource ID — required for cross-RG gallery publish
-          STORAGE_ID=$(az storage account show \
-            --name ${{ env.STORAGE_ACCOUNT }} \
-            --query id -o tsv)
+          # Hardcode the full resource ID for packervhdseastus — it lives in the
+          # CommercialMarketPlaceOffers subscription, not the build subscription,
+          # so az storage account show fails with "not found" in the runner auth context.
+          STORAGE_ID="/subscriptions/86744dc8-63f9-4837-b601-2faa788ec2e3/resourceGroups/rg-packer-vhds/providers/Microsoft.Storage/storageAccounts/packervhdseastus"
           az sig image-version create \
              --resource-group ${{ env.GALLERY_RG }} \
              --gallery-name ${{ env.GALLERY_NAME }} \
