@@ -10,4 +10,4 @@ gallery:
   publisher: MicrosoftWindowsServer
   offer: WindowsServer
   sku: 2022-datacenter-azure-edition-hotpatch
-vm_size: Standard_D4s_v5
+vm_size: Standard_D4s_v4

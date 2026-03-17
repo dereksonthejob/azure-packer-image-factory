@@ -9,4 +9,4 @@ gallery:
   publisher: DerekColeman
   offer: windows-10-ent
   sku: win10-22h2-ent
-vm_size: Standard_D4s_v5
+vm_size: Standard_D4s_v4

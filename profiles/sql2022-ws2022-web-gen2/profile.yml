@@ -9,4 +9,4 @@ gallery:
   offer: sql2022-ws2022
   sku: web-gen2
 test:
-  vm_size: Standard_D4s_v5
+  vm_size: Standard_D4s_v4

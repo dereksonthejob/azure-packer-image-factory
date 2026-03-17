@@ -9,4 +9,4 @@ gallery:
   offer: windows-server-2025
   sku: datacenter-azure-edition-gen2
 test:
-  vm_size: Standard_D4s_v5
+  vm_size: Standard_D4s_v4

@@ -8,4 +8,4 @@ gallery:
   offer: sql-server-2022
   sku: standard-gen2
 test:
-  vm_size: Standard_D4s_v5
+  vm_size: Standard_D4s_v4

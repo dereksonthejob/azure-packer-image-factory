@@ -143,14 +143,19 @@ jobs:
              --features SecurityType=TrustedLaunch \
              --location ${{ env.LOCATION }} || echo "Image Definition natively exists!"
 
-      - name: Publish to Compute Gallery 
+      - name: Publish to Compute Gallery
         run: |
           VERSION="1.0.${{ github.run_number }}"
+          # Resolve full resource ID — required for cross-RG gallery publish
+          STORAGE_ID=$(az storage account show \
+            --name ${{ env.STORAGE_ACCOUNT }} \
+            --query id -o tsv)
           az sig image-version create \
              --resource-group ${{ env.GALLERY_RG }} \
              --gallery-name ${{ env.GALLERY_NAME }} \
              --gallery-image-definition ${{ env.IMGDEF }} \
              --gallery-image-version $VERSION \
              --os-vhd-uri "${{ steps.sas.outputs.vhd_uri }}" \
-             --os-vhd-storage-account ${{ env.STORAGE_ACCOUNT }} \
+             --os-vhd-storage-account "$STORAGE_ID" \
+             --target-regions ${{ env.LOCATION }} \
              --location ${{ env.LOCATION }}
