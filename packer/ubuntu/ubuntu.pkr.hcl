@@ -29,6 +29,11 @@ variable "azure_tags" {
   type    = map(string)
   default = {}
 }
+variable "architecture" {
+  type    = string
+  default = "x64"
+  description = "CPU architecture: x64, Arm64. Arm64 skips managed image intermediate step."
+}
 
 variable "plan_info_publisher" {
   type    = string
@@ -45,7 +50,8 @@ variable "plan_info_name" {
   default = ""
 }
 
-source "azure-arm" "image" {
+# x64 source: uses managed image as intermediate (required for x64 gallery publish)
+source "azure-arm" "image_x64" {
   use_azure_cli_auth = true
   build_resource_group_name = var.build_resource_group_name
   virtual_network_resource_group_name = "rg-github-runner-platform-eastus"
@@ -62,8 +68,7 @@ source "azure-arm" "image" {
   managed_image_resource_group_name = var.build_resource_group_name
 
   ssh_username = "azureuser"
-
-  azure_tags = var.azure_tags
+  azure_tags   = var.azure_tags
 
   shared_image_gallery_destination {
     resource_group      = var.gallery_resource_group
@@ -83,8 +88,46 @@ source "azure-arm" "image" {
   }
 }
 
+# Arm64/CVM source: publishes DIRECTLY to SIG — no managed image intermediate
+source "azure-arm" "image_arm64" {
+  use_azure_cli_auth = true
+  build_resource_group_name = var.build_resource_group_name
+  virtual_network_resource_group_name = "rg-github-runner-platform-eastus"
+  virtual_network_name                = "vnet-gh-runners-eastus"
+  virtual_network_subnet_name         = "snet-gh-runners"
+
+  os_type         = "Linux"
+  image_publisher = var.source_image_publisher
+  image_offer     = var.source_image_offer
+  image_sku       = var.source_image_sku
+  image_version   = var.source_image_version
+  vm_size         = var.vm_size
+
+  ssh_username = "azureuser"
+  azure_tags   = var.azure_tags
+
+  # NO managed_image_* fields — goes straight to gallery
+  shared_image_gallery_destination {
+    resource_group      = var.gallery_resource_group
+    gallery_name        = var.gallery_name
+    image_name          = var.image_definition
+    image_version       = var.image_version
+    replication_regions = var.replication_regions
+  }
+
+  dynamic "plan_info" {
+    for_each = length(var.plan_info_publisher) > 0 ? [1] : []
+    content {
+      plan_publisher = var.plan_info_publisher
+      plan_product   = var.plan_info_product
+      plan_name      = var.plan_info_name
+    }
+  }
+}
+
 build {
-  sources = ["source.azure-arm.image"]
+  # Select source based on architecture variable
+  sources = var.architecture == "Arm64" ? ["source.azure-arm.image_arm64"] : ["source.azure-arm.image_x64"]
 
   provisioner "shell" {
     inline = [
