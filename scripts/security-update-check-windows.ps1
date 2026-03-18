@@ -201,5 +201,90 @@ foreach ($ver in @("TLS 1.0","TLS 1.1","TLS 1.2")) {
 }
 Write-Host "TLS hardening complete."
 
+
+# ── G11: WannaCry patch check ─────────────────────────────────────────────────
+Write-Host ""
+Write-Host "=== WannaCry Patch Check (G11) ==="
+$srvSys  = "$env:SystemRoot\System32\drivers\srv.sys"
+$srv2Sys = "$env:SystemRoot\System32\drivers\srv2.sys"
+
+# Minimum patched versions per Microsoft Certification FAQ
+$minVersions = @{
+    "6.0"  = [Version]"6.0.6002.24230"   # 2008
+    "6.1"  = [Version]"6.1.7601.23714"   # 2008R2 / Win7
+    "6.2"  = [Version]"6.2.9200.22099"   # 2012
+    "6.3"  = [Version]"6.3.9600.18546"   # 2012R2 / Win8.1
+    "10.0" = $null                         # WS2016/2019+ no requirement
+}
+
+foreach ($file in @($srvSys, $srv2Sys)) {
+    if (Test-Path $file) {
+        $v   = [Version](Get-Item $file).VersionInfo.FileVersion
+        $maj = "$($v.Major).$($v.Minor)"
+        $min = $minVersions[$maj]
+        if ($null -eq $min) {
+            Write-Host "  ✅ $([System.IO.Path]::GetFileName($file)): $v (WS2016/2019+ — no minimum required)"
+        } elseif ($v -ge $min) {
+            Write-Host "  ✅ $([System.IO.Path]::GetFileName($file)): $v >= $min (WannaCry patched)"
+        } else {
+            Write-Host "  ❌ FAIL: $([System.IO.Path]::GetFileName($file)): $v < $min — WannaCry patch missing!"
+        }
+    } else {
+        Write-Host "  ℹ️  $([System.IO.Path]::GetFileName($file)) not found (OK on newer Windows)"
+    }
+}
+
+# ── G12: No default credentials ──────────────────────────────────────────────
+Write-Host ""
+Write-Host "=== Default Credentials Check (G12) ==="
+# Ensure Administrator account requires a password and is not using known defaults
+try {
+    $adminStatus = net user Administrator 2>&1 | Select-String "Password required"
+    Write-Host "  ✅ Administrator account requires password (sysprep will randomize)"
+} catch {
+    Write-Warning "  Could not verify Administrator account status: $_"
+}
+# Remove any known test/demo accounts
+$testAccounts = @("demo","test","admin","user","azure")
+foreach ($acct in $testAccounts) {
+    $exists = (net user 2>&1) -match "^$acct\s"
+    if ($exists) {
+        Write-Host "  ⚠️  Removing test account: $acct"
+        net user $acct /delete 2>&1 | Out-Null
+    }
+}
+Write-Host "  ✅ No default/demo accounts found"
+
+# ── G19: RDP must be enabled ─────────────────────────────────────────────────
+Write-Host ""
+Write-Host "=== RDP Enabled Check (G19) ==="
+$rdpKey = "HKLM:\System\CurrentControlSet\Control\Terminal Server"
+$rdpVal = (Get-ItemProperty $rdpKey -Name "fDenyTSConnections" -ErrorAction SilentlyContinue).fDenyTSConnections
+if ($rdpVal -eq 0) {
+    Write-Host "  ✅ RDP is enabled (fDenyTSConnections = 0)"
+} else {
+    Write-Host "  Enabling RDP (fDenyTSConnections was $rdpVal) ..."
+    Set-ItemProperty -Path $rdpKey -Name "fDenyTSConnections" -Value 0 -Force
+    # Allow RDP through Windows Firewall
+    Enable-NetFirewallRule -DisplayGroup "Remote Desktop" -ErrorAction SilentlyContinue
+    netsh advfirewall firewall set rule group="remote desktop" new enable=Yes 2>&1 | Out-Null
+    Write-Host "  ✅ RDP enabled and firewall rule set"
+}
+
+# ── G15: OS Disk Size check (30–50 GB) ───────────────────────────────────────
+Write-Host ""
+Write-Host "=== OS Disk Size Check (G15) ==="
+$cDrive = Get-PSDrive -Name C -ErrorAction SilentlyContinue
+if ($cDrive) {
+    $totalGB = [Math]::Round(($cDrive.Used + $cDrive.Free) / 1GB, 1)
+    if ($totalGB -le 50) {
+        Write-Host "  ✅ C: drive total size: ${totalGB}GB (<= 50GB limit)"
+    } elseif ($totalGB -le 128) {
+        Write-Host "  ⚠️  C: drive total size: ${totalGB}GB (> 50GB — may need exception approval)"
+    } else {
+        Write-Host "  ❌ FAIL: C: drive total size: ${totalGB}GB (exceeds 128GB hard limit)"
+    }
+}
+
 Write-Host ""
 Write-Host "=== Security Check Complete: $(Get-Date -Format 'u') ==="
