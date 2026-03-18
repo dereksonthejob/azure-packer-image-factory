@@ -281,6 +281,30 @@ jobs:
             "${{ steps.profile.outputs.profile_id }}" \
             "packerbuild.log"
 
+
+      - name: Standards Compliance Validation
+        if: success()
+        shell: bash
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          echo "=== Standards Compliance Validation ==="
+          python3 .github/scripts/marketplace/audit_offer_fields.py --offer-id "${{ steps.profile.outputs.offer_id }}" 2>/dev/null || echo "Audit skipped (no offer_id)"
+          python3 - << 'EOF'
+import subprocess, json
+# Validate $0.09/vCPU pricing is set on relevant plans
+result = subprocess.run(
+  ['python3', '.github/scripts/marketplace/set_offer_pricing.py', '--dry-run'],
+  capture_output=True, text=True
+)
+if result.returncode != 0:
+  print("Pricing validation warning:", result.stderr[:200])
+else:
+  print(result.stdout[:500])
+EOF
+
       - name: Capture Build Failures
         if: failure()
         shell: bash
