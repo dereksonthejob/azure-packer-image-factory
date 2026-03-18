@@ -1,0 +1,12 @@
+profile_id: sql2019-ws2022-enterprise-gen2
+os_family: windows
+source_image_urn: MicrosoftSQLServer:sql2019-ws2022:enterprise-gen2:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-sql2019-ws2022-enterprise-gen2
+  publisher: DerekColeman
+  offer: sql2019-ws2022
+  sku: enterprise-gen2
+test:
+  vm_size: Standard_D4s_v3
