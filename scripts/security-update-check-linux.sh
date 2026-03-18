@@ -159,3 +159,31 @@ uname -a
 
 echo ""
 echo "=== Security Check Complete ==="
+
+
+# -----------------------------------------------------------------------
+# POLICY CHECK: Accelerated Networking driver (G4)
+# hv_netvsc (Hyper-V) or mlx5_core (Mellanox/ConnectX) must be available
+# -----------------------------------------------------------------------
+echo "=== Checking Accelerated Networking driver availability ==="
+if lsmod 2>/dev/null | grep -qE 'hv_netvsc|mlx5_core'; then
+    echo "  ✅ Accelerated Networking driver present"
+elif modinfo hv_netvsc >/dev/null 2>&1 || modinfo mlx5_core >/dev/null 2>&1; then
+    echo "  ⚠️  AN driver available but not loaded — loading hv_netvsc..."
+    modprobe hv_netvsc 2>/dev/null || true
+else
+    echo "  ⚠️  WARNING: No Accelerated Networking driver found (hv_netvsc or mlx5_core)"
+    echo "  This may cause Marketplace certification warnings."
+fi
+
+# -----------------------------------------------------------------------
+# POLICY CHECK: OS Disk Size (G5)
+# Linux: root partition must be <= 50 GB for Marketplace certification
+# -----------------------------------------------------------------------
+echo "=== Checking OS disk size ==="
+ROOT_SIZE_GB=$(df -BG / 2>/dev/null | awk 'NR==2{gsub(/G/,"",$2); print $2}')
+if [ -n "$ROOT_SIZE_GB" ] && [ "$ROOT_SIZE_GB" -le 50 ] 2>/dev/null; then
+    echo "  ✅ Root partition: ${ROOT_SIZE_GB}GB (within 50GB limit)"
+else
+    echo "  ⚠️  WARNING: Root partition ${ROOT_SIZE_GB}GB may exceed 50GB Marketplace limit"
+fi
