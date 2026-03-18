@@ -363,3 +363,15 @@ EOF
             packer-debug.log
             patch-report/
           retention-days: 7
+
+  azcertify-preflight:
+    name: AzCertify Pre-flight (${{ matrix.profile }})
+    needs: [build-image]
+    if: success()
+    uses: ./.github/workflows/azcertify-validation.yml
+    secrets: inherit
+    with:
+      image_definition: ${{ needs.build-image.outputs.image_definition }}
+      image_version: ${{ inputs.image_version }}
+      os_family: ${{ needs.build-image.outputs.os_family }}
+
