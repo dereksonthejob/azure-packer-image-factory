@@ -1,0 +1,11 @@
+profile_id: ubuntu-server-2404-cvm
+os_family: linux
+source_image_urn: Canonical:ubuntu-24_04-lts:cvm:latest
+security_type: ConfidentialVmSupported
+gallery:
+  image_definition: imgdef-ubuntu-server-2404-cvm
+  publisher: dcassociatesgroup-com
+  offer: ubuntu-server-2404-lts
+  sku: ubuntu2404-cvm
+test:
+  vm_size: Standard_DC4as_v5
