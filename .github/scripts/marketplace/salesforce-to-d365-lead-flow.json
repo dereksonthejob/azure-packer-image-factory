@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+      "Create_D365_Lead": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "host": {
+            "connectionName": "commondataservice",
+            "operationId": "CreateRecord",
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataservice"
+          },
+          "parameters": {
+            "entityName": "leads",
+            "item/subject": "@{triggerOutputs()?['body/LeadSource']}",
+            "item/firstname": "@{triggerOutputs()?['body/FirstName']}",
+            "item/lastname": "@{triggerOutputs()?['body/LastName']}",
+            "item/emailaddress1": "@{triggerOutputs()?['body/Email']}",
+            "item/companyname": "@{triggerOutputs()?['body/Company']}",
+            "item/telephone1": "@{triggerOutputs()?['body/Phone']}",
+            "item/leadsourcecode": 10,
+            "item/description": "@{concat('Partner Center Marketplace Lead\\nOffer: ', triggerOutputs()?['body/OfferTitle'], '\\nPlan: ', triggerOutputs()?['body/PlanTitle'], '\\nCountry: ', triggerOutputs()?['body/Country'])}",
+            "item/websiteurl": "@{triggerOutputs()?['body/CustomerUrl']}",
+            "item/jobtitle": "@{triggerOutputs()?['body/Title']}"
+          },
+          "authentication": "@parameters('$authentication')"
+        },
+        "runAfter": {}
+      }
+    },
+    "triggers": {
+      "When_a_new_Salesforce_lead_is_created": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "host": {
+            "connectionName": "salesforce",
+            "operationId": "OnNewObject",
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_salesforce"
+          },
+          "parameters": {
+            "table": "Lead",
+            "includeArchivedRecords": false
+          },
+          "authentication": "@parameters('$authentication')"
+        },
+        "recurrence": {
+          "frequency": "Minute",
+          "interval": 5
+        }
+      }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {}
+  },
+  "connectionReferences": {
+    "salesforce": {
+      "runtimeSource": "embedded",
+      "connection": {},
+      "api": {
+        "name": "shared_salesforce"
+      }
+    },
+    "commondataservice": {
+      "runtimeSource": "embedded",
+      "connection": {},
+      "api": {
+        "name": "shared_commondataservice"
+      }
+    }
+  }
+}
