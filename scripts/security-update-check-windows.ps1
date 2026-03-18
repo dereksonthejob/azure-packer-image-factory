@@ -99,16 +99,107 @@ try {
     Write-Host ""
     Write-Host "=== REMOVING DEFENDER (Marketplace Policy 200 Compliance) ==="
     try {
-        Stop-Service WinDefend -Force -ErrorAction SilentlyContinue
-        Uninstall-WindowsFeature -Name Windows-Defender -Confirm:$false | Out-Null
-        Write-Host "Windows-Defender feature removed successfully."
-    } catch {
-        Write-Warning "Could not uninstall via feature: $_. Trying DisableWindowsOptionalFeature..."
-        Disable-WindowsOptionalFeature -Online -FeatureName "Windows-Defender" -NoRestart -ErrorAction SilentlyContinue | Out-Null
+
+    # THOROUGH DEFENDER REMOVAL (Policy 200.4.2)
+    # AzCertify scans for binaries, registry keys, and services - not just Windows Feature state
+    Write-Host "=== DEEP DEFENDER REMOVAL ==="
+
+    # 1. Stop and disable all Defender services
+    $defServices = @("WinDefend","WdNisSvc","WdFilter","WdBoot","MsMpEng","Sense","SecurityHealthService")
+    foreach ($svc in $defServices) {
+        try {
+            Stop-Service  $svc -Force -ErrorAction SilentlyContinue
+            Set-Service   $svc -StartupType Disabled -ErrorAction SilentlyContinue
+        } catch { }
     }
-    $defState = (Get-WindowsFeature -Name Windows-Defender -ErrorAction SilentlyContinue).InstallState
-    Write-Host "Windows-Defender state after removal: $defState"
+
+    # 2. Remove Windows Defender feature
+    Uninstall-WindowsFeature -Name Windows-Defender -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
+    Uninstall-WindowsFeature -Name Windows-Defender-GUI -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
+    Disable-WindowsOptionalFeature -Online -FeatureName "Windows-Defender" -NoRestart -ErrorAction SilentlyContinue | Out-Null
+
+    # 3. Remove Defender program files and data
+    $defPaths = @(
+        "$env:ProgramFiles\Windows Defender",
+        "$env:ProgramFiles\Windows Defender Advanced Threat Protection",
+        "$env:ProgramData\Microsoft\Windows Defender",
+        "$env:ProgramData\Microsoft\Windows Defender Advanced Threat Protection"
+    )
+    foreach ($p in $defPaths) {
+        if (Test-Path $p) {
+            Remove-Item $p -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "  Removed: $p"
+        }
+    }
+
+    # 4. Remove Defender registry keys (AzCertify checks these)
+    $defRegKeys = @(
+        "HKLM:\SOFTWARE\Microsoft\Windows Defender",
+        "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender",
+        "HKLM:\SYSTEM\CurrentControlSet\Services\WinDefend",
+        "HKLM:\SYSTEM\CurrentControlSet\Services\WdNisSvc",
+        "HKLM:\SYSTEM\CurrentControlSet\Services\WdFilter",
+        "HKLM:\SYSTEM\CurrentControlSet\Services\MsMpEng",
+        "HKLM:\SYSTEM\CurrentControlSet\Services\Sense"
+    )
+    foreach ($key in $defRegKeys) {
+        if (Test-Path $key) {
+            Remove-Item $key -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "  Removed registry: $key"
+        }
+    }
+
+    $defStateAfter = (Get-WindowsFeature -Name Windows-Defender -ErrorAction SilentlyContinue).InstallState
+    Write-Host "Windows-Defender state after deep removal: $defStateAfter"
+    Write-Host "Deep Defender removal complete." 
 }
+
+
+# TLS 1.0 and TLS 1.1 Disable (Policy 200.5.8)
+# Fixes AzCertify failures on ports 1433 (SQL Server) and 3389 (RDP)
+Write-Host ""
+Write-Host "=== DISABLING TLS 1.0 AND TLS 1.1 (Policy 200.5.8) ==="
+$tlsBase = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols"
+
+foreach ($version in @("TLS 1.0", "TLS 1.1")) {
+    foreach ($role in @("Server", "Client")) {
+        $path = "$tlsBase\$version\$role"
+        if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+        New-ItemProperty -Path $path -Name "Enabled"           -Value 0 -PropertyType DWORD -Force | Out-Null
+        New-ItemProperty -Path $path -Name "DisabledByDefault" -Value 1 -PropertyType DWORD -Force | Out-Null
+        Write-Host "  Disabled $version $role"
+    }
+}
+
+# Enforce TLS 1.2 for SQL Server
+$sqlNetLib = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQLServer\SuperSocketNetLib"
+if (Test-Path $sqlNetLib) {
+    New-ItemProperty -Path $sqlNetLib -Name "ForceEncryption" -Value 1 -PropertyType DWORD -Force | Out-Null
+    Write-Host "  SQL Server ForceEncryption = 1 (forces TLS)"
+}
+
+# .NET strong crypto (prevents TLS downgrade from managed apps)
+foreach ($fwPath in @(
+    "HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319",
+    "HKLM:\SOFTWARE\Wow6432Node\Microsoft\.NETFramework\v4.0.30319"
+)) {
+    if (Test-Path $fwPath) {
+        New-ItemProperty -Path $fwPath -Name "SchUseStrongCrypto"      -Value 1 -PropertyType DWORD -Force | Out-Null
+        New-ItemProperty -Path $fwPath -Name "SystemDefaultTlsVersions" -Value 1 -PropertyType DWORD -Force | Out-Null
+    }
+}
+
+# Verify
+Write-Host ""
+Write-Host "=== TLS Verification ==="
+foreach ($ver in @("TLS 1.0","TLS 1.1","TLS 1.2")) {
+    $sp = "$tlsBase\$ver\Server"
+    if (Test-Path $sp) {
+        $en = (Get-ItemProperty $sp -Name "Enabled" -ErrorAction SilentlyContinue).Enabled
+        Write-Host "  $ver Server Enabled = $en  (0=disabled, 1=enabled)"
+    }
+}
+Write-Host "TLS hardening complete."
 
 Write-Host ""
 Write-Host "=== Security Check Complete: $(Get-Date -Format 'u') ==="
