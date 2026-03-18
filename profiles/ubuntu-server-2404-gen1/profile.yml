@@ -1,0 +1,11 @@
+profile_id: ubuntu-server-2404-gen1
+os_family: linux
+source_image_urn: Canonical:ubuntu-24_04-lts:server-gen1:latest
+security_type: Standard
+gallery:
+  image_definition: imgdef-ubuntu-server-2404
+  publisher: dcassociatesgroup-com
+  offer: ubuntu-server-2404-lts
+  sku: ubuntu2404-server-gen1
+test:
+  vm_size: Standard_D4s_v3
