@@ -1,0 +1,11 @@
+profile_id: rocky-linux-9-gen2
+os_family: linux
+source_image_urn: erockyenterprisesoftwarefoundationinc1653071:rockylinux-9:rockylinux-9:latest
+security_type: TrustedLaunchSupported
+gallery:
+  image_definition: imgdef-rocky-linux-9-gen2
+  publisher: dcassociatesgroup-com
+  offer: rocky_linux_8_vm
+  sku: rocky-9-gen2
+test:
+  vm_size: Standard_D4s_v3
