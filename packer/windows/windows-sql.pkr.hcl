@@ -110,11 +110,6 @@ build {
     update_limit = 1000
   }
 
-  provisioner "powershell" {
-    inline = [
-      "Write-Output 'Executing Commercial Marketplace Vulnerability Mitigation: Neutralizing EOL .NET 6.0 (AzCertify 106247)...'",
-      "$net6paths = @('C:\\Program Files\\dotnet\\shared\\Microsoft.NETCore.App\\6.*', 'C:\\Program Files\\dotnet\\shared\\Microsoft.WindowsDesktop.App\\6.*', 'C:\\Program Files\\dotnet\\shared\\Microsoft.AspNetCore.App\\6.*', 'C:\\Program Files\\dotnet\\host\\fxr\\6.*', 'C:\\Program Files\\dotnet\\sdk\\6.*')",
-      "foreach ($p in $net6paths) { if (Test-Path $p) { Write-Output \"Purging EOL .NET 6 Directory: $p\"; Remove-Item -Path $p -Recurse -Force -ErrorAction SilentlyContinue } }",
       "Write-Output 'Mitigation Complete.'"
     ]
   }
@@ -124,18 +119,19 @@ build {
   # Azure SQL Server marketplace images ship with Defender pre-installed.
   # Failure to offboard results in certification rejection.
   # -----------------------------------------------------------------------
+  provisioner "file" {
+    source      = "${path.root}/../../scripts/Invoke-MarketplaceImageHardening.ps1"
+    destination = "C:\Windows\Temp\Invoke-MarketplaceImageHardening.ps1"
+    direction   = "upload"
+  }
+
   provisioner "powershell" {
     inline = [
-      "Write-Output '=== Policy 200.4.2: Offboarding and removing Microsoft Defender ATP ==='\n",
+      "# Policy 200.4.2 (Defender ATP) + Policy 200.5.8 (.NET 6 EOL)",
+      "& C:\Windows\Temp\Invoke-MarketplaceImageHardening.ps1 -ErrorAction Stop"
+    ]
+  }
 
-      # Stop all Defender/Sense services gracefully
-      "$services = @('WinDefend','WdNisSvc','MsSense','Sense','MpsSvc')",
-      "foreach ($svc in $services) {",
-      "  if (Get-Service -Name $svc -ErrorAction SilentlyContinue) {",
-      "    Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue",
-      "    Set-Service  -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue",
-      "    Write-Output \"Stopped: $svc\"",
-      "  }",
       "}",
 
       # Uninstall MDE Sense via its own uninstaller if present
