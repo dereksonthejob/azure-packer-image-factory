@@ -133,8 +133,6 @@ build {
   }
 
       "}",
-
-      "$mdeSetup = 'C:\\Program Files\\Windows Defender Advanced Threat Protection\\MsSense.exe'",
       "if (Test-Path $mdeSetup) {",
       "  Start-Process -FilePath $mdeSetup -ArgumentList 'uninstall' -Wait -ErrorAction SilentlyContinue",
       "}",
@@ -156,8 +154,6 @@ build {
       "foreach ($d in $dirs) {",
       "  if (Test-Path $d) { Remove-Item -Path $d -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed: $d\" }",
       "}",
-
-      "$remaining = Get-Process -Name 'MsSense','MsMpEng' -ErrorAction SilentlyContinue",
       "if ($remaining) { throw 'CERTIFICATION BLOCKER: Defender process still running: ' + ($remaining.Name -join ',') }",
       "Write-Output '=== Defender ATP offboard complete. OK for sysprep. ==='",
     ]
