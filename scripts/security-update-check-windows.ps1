@@ -155,6 +155,71 @@ try {
 }
 
 
+# ── .NET 6 EOL Removal (Policy 200.5.8 — AzCertifyVulnerabilityId 106247) ────
+# .NET 6 reached End of Life November 12, 2024.
+# AzCertify flags it as CVSS 9.0 — must be removed from all Marketplace images.
+Write-Host ""
+Write-Host "=== Removing EOL .NET 6 (Policy 200.5.8) ==="
+
+$dotnetDir = "$env:ProgramFiles\dotnet"
+if (Test-Path $dotnetDir) {
+    # Find all .NET 6 shared runtimes and SDKs
+    $net6Paths = @(
+        "$dotnetDir\shared\Microsoft.NETCore.App\6.*",
+        "$dotnetDir\shared\Microsoft.AspNetCore.App\6.*",
+        "$dotnetDir\shared\Microsoft.WindowsDesktop.App\6.*",
+        "$dotnetDir\sdk\6.*",
+        "$dotnetDir\packs\*\6.*",
+        "$dotnetDir\templates\6.*"
+    )
+
+    $removed = 0
+    foreach ($pattern in $net6Paths) {
+        $matches = Get-Item $pattern -ErrorAction SilentlyContinue
+        foreach ($item in $matches) {
+            try {
+                Remove-Item $item.FullName -Recurse -Force -ErrorAction SilentlyContinue
+                Write-Host "  Removed: $($item.FullName)"
+                $removed++
+            } catch {
+                Write-Warning "  Could not remove $($item.FullName): $_"
+            }
+        }
+    }
+
+    if ($removed -eq 0) {
+        Write-Host "  No .NET 6 components found (already clean or not installed)"
+    } else {
+        Write-Host "  Removed $removed .NET 6 component path(s)"
+    }
+
+    # Verify no .NET 6 remains
+    Write-Host ""
+    Write-Host "  === .NET Versions Remaining After Cleanup ==="
+    $runtimesLeft = Get-ChildItem "$dotnetDir\shared\Microsoft.NETCore.App\" -ErrorAction SilentlyContinue |
+        Select-Object -ExpandProperty Name
+    if ($runtimesLeft) {
+        $runtimesLeft | ForEach-Object {
+            $icon = if ($_ -like "6.*") { "❌ EOL" } else { "✅" }
+            Write-Host "    $icon $_"
+        }
+    } else {
+        Write-Host "  No .NET runtimes found"
+    }
+} else {
+    Write-Host "  dotnet directory not found — .NET not installed, skipping"
+}
+
+# Also remove via Add/Remove Programs if present as a Features On Demand
+Get-WindowsCapability -Online -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -like "*dotnet*6*" -and $_.State -eq "Installed" } |
+    ForEach-Object {
+        Write-Host "  Removing capability: $($_.Name)"
+        Remove-WindowsCapability -Online -Name $_.Name -ErrorAction SilentlyContinue | Out-Null
+    }
+
+Write-Host ".NET 6 EOL removal complete."
+
 # TLS 1.0 and TLS 1.1 Disable (Policy 200.5.8)
 # Fixes AzCertify failures on ports 1433 (SQL Server) and 3389 (RDP)
 Write-Host ""
