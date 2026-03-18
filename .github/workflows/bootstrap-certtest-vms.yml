@@ -1,0 +1,39 @@
+name: Bootstrap AzCertify Test VMs
+
+on:
+  workflow_dispatch:
+    inputs:
+      key_vault_name:
+        description: 'Key Vault name to store certtest VM password'
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  bootstrap:
+    name: Create Persistent AzCertify Test VMs
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Azure Credentials
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Create Persistent Test VMs
+        shell: pwsh
+        run: |
+          .\scripts\bootstrap-certtest-vms.ps1 -KeyVaultName "${{ inputs.key_vault_name }}"
+
+      - name: Show VM Public IPs
+        shell: bash
+        run: |
+          echo "=== Test VM Public IPs ==="
+          az vm show -g RG-AZCERTIFY-PREFLIGHT -n vm-certtest-windows-eastus --show-details --query publicIps -o tsv
+          az vm show -g RG-AZCERTIFY-PREFLIGHT -n vm-certtest-linux-eastus --show-details --query publicIps -o tsv
