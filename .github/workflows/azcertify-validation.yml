@@ -46,29 +46,23 @@ jobs:
         id: img
         shell: pwsh
         run: |
-          $sub    = "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          $rg     = "${{ inputs.gallery_rg }}"
-          $gal    = "${{ inputs.gallery_name }}"
-          $def    = "${{ inputs.image_definition }}"
-          $ver    = "${{ inputs.image_version }}"
+          $sub = "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          $rg  = "${{ inputs.gallery_rg }}"
+          $gal = "${{ inputs.gallery_name }}"
+          $def = "${{ inputs.image_definition }}"
+          $ver = "${{ inputs.image_version }}"
           $rid = "/subscriptions/$sub/resourceGroups/$rg/providers/Microsoft.Compute/galleries/$gal/images/$def/versions/$ver"
-          echo "resource_id=$rid" >> $env:GITHUB_OUTPUT
+          "resource_id=$rid" >> $env:GITHUB_OUTPUT
           Write-Host "Image Resource ID: $rid"
 
-      - name: Cache Certification Tool
-        uses: actions/cache@v4
-        id: tool-cache
-        with:
-          path: C:\CertificationTool
-          key: azcertify-tool-v1.6
-
-      - name: Run AzCertify Pre-flight
+      - name: Run AzCertify Pre-flight (Persistent VM)
         shell: pwsh
+        env:
+          CERTTEST_VM_PASSWORD: ${{ secrets.CERTTEST_VM_PASSWORD }}
         run: |
           .\scripts\run-azcertify.ps1 `
             -ImageResourceId "${{ steps.img.outputs.resource_id }}" `
-            -OSFamily "${{ inputs.os_family }}" `
-            -VMSize "Standard_D4s_v4"
+            -OSFamily        "${{ inputs.os_family }}"
 
       - name: Upload AzCertify Report
         if: always()
