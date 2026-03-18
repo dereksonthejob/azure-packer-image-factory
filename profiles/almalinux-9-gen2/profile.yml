@@ -1,0 +1,11 @@
+profile_id: almalinux-9-gen2
+os_family: linux
+source_image_urn: almalinux:almalinux-x86_64:9-gen2:latest
+security_type: TrustedLaunchSupported
+gallery:
+  image_definition: imgdef-almalinux-9-gen2
+  publisher: dcassociatesgroup-com
+  offer: alma_linux
+  sku: 9-gen2
+test:
+  vm_size: Standard_D4s_v3
