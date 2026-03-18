@@ -187,3 +187,81 @@ if [ -n "$ROOT_SIZE_GB" ] && [ "$ROOT_SIZE_GB" -le 50 ] 2>/dev/null; then
 else
     echo "  ⚠️  WARNING: Root partition ${ROOT_SIZE_GB}GB may exceed 50GB Marketplace limit"
 fi
+# -----------------------------------------------------------------------
+# CERTIFICATION FAQ: Clear bash_history (G10/G18)
+# Must be ≤ 1 KB — ideally 0. AzCertify will flag non-empty history.
+# -----------------------------------------------------------------------
+echo "=== Clearing bash history (AzCertify G10) ==="
+cat /dev/null > ~/.bash_history && history -c 2>/dev/null || true
+find /root /home -name ".bash_history" -exec truncate -s 0 {} \; 2>/dev/null || true
+find /root /home -name ".bash_history" -exec ls -la {} \; 2>/dev/null || true
+echo "  bash_history cleared on all accounts"
+
+# -----------------------------------------------------------------------
+# CERTIFICATION FAQ: Provisioning agent check (G17)
+# cloud-init preferred, waagent acceptable, none = certification fail
+# -----------------------------------------------------------------------
+echo ""
+echo "=== Provisioning agent check (G17) ==="
+if command -v cloud-init >/dev/null 2>&1; then
+    CLOUDINIT_VER=$(cloud-init --version 2>&1 | head -1)
+    echo "  ✅ cloud-init present: $CLOUDINIT_VER (recommended)"
+elif command -v waagent >/dev/null 2>&1; then
+    WAAGENT_VER=$(waagent --version 2>&1 | head -1)
+    echo "  ⚠️  waagent present: $WAAGENT_VER (least recommended — cloud-init preferred)"
+elif command -v azcmagent >/dev/null 2>&1; then
+    echo "  ✅ AzureInit (azcmagent) present"
+else
+    echo "  ❌ ERROR: No provisioning agent found (cloud-init, waagent, or AzureInit required)"
+    echo "  Installing cloud-init as fallback..."
+    apt-get install -y cloud-init 2>/dev/null || yum install -y cloud-init 2>/dev/null || \
+        { echo "  FATAL: Could not install cloud-init — certification will fail"; exit 1; }
+fi
+
+# -----------------------------------------------------------------------
+# CERTIFICATION FAQ: SSH ClientAliveInterval (AzCertify test case)
+# Must be set to prevent idle session issues during cert scan
+# -----------------------------------------------------------------------
+echo ""
+echo "=== SSH ClientAliveInterval check ==="
+SSHD_CONFIG="/etc/ssh/sshd_config"
+if grep -qE "^ClientAliveInterval" "$SSHD_CONFIG" 2>/dev/null; then
+    VAL=$(grep -E "^ClientAliveInterval" "$SSHD_CONFIG" | awk '{print $2}')
+    echo "  ✅ ClientAliveInterval = $VAL"
+else
+    echo "  Setting ClientAliveInterval 180 in $SSHD_CONFIG"
+    echo "ClientAliveInterval 180" >> "$SSHD_CONFIG"
+    echo "ClientAliveCountMax 3"   >> "$SSHD_CONFIG"
+    echo "  ✅ ClientAliveInterval set"
+fi
+
+# -----------------------------------------------------------------------
+# CERTIFICATION FAQ: /etc/shadow permissions
+# Must be 000 (root only) or 640. AzCertify flags world-readable shadow
+# -----------------------------------------------------------------------
+echo ""
+echo "=== /etc/shadow permissions check ==="
+if [ -f /etc/shadow ]; then
+    SHADOW_PERMS=$(stat -c "%a" /etc/shadow 2>/dev/null)
+    if [ "$SHADOW_PERMS" = "000" ] || [ "$SHADOW_PERMS" = "640" ] || [ "$SHADOW_PERMS" = "600" ]; then
+        echo "  ✅ /etc/shadow permissions: $SHADOW_PERMS"
+    else
+        echo "  Fixing /etc/shadow permissions: $SHADOW_PERMS → 000"
+        chmod 000 /etc/shadow
+        echo "  ✅ Fixed"
+    fi
+fi
+
+# -----------------------------------------------------------------------
+# CERTIFICATION FAQ: 1 MB free space check (G13 VHD alignment)
+# -----------------------------------------------------------------------
+echo ""
+echo "=== 1 MB free space check (G13) ==="
+FREE_BYTES=$(df -B1 / 2>/dev/null | awk 'NR==2{print $4}')
+if [ -n "$FREE_BYTES" ] && [ "$FREE_BYTES" -ge 1048576 ] 2>/dev/null; then
+    FREE_MB=$(( FREE_BYTES / 1048576 ))
+    echo "  ✅ ${FREE_MB} MB free on root partition (>= 1 MB required)"
+else
+    echo "  ⚠️  WARNING: Less than 1 MB free on root partition — VHD alignment may fail AzCertify"
+fi
+
