@@ -1,0 +1,11 @@
+profile_id: oracle-linux-8-gen2
+os_family: linux
+source_image_urn: oracle:Oracle-Linux:ol8-lvm-gen2:latest
+security_type: TrustedLaunchSupported
+gallery:
+  image_definition: imgdef-oracle-linux-8-gen2
+  publisher: dcassociatesgroup-com
+  offer: oracle-linux-gen2
+  sku: ol8-gen2
+test:
+  vm_size: Standard_D4s_v3
