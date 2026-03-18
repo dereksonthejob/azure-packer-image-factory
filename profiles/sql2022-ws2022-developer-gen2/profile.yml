@@ -1,0 +1,11 @@
+profile_id: sql2022-ws2022-developer-gen2
+os_family: windows
+source_image_urn: MicrosoftSQLServer:sql2022-ws2022:sqldev-gen2:latest
+security_type: TrustedLaunchSupported
+gallery:
+  image_definition: imgdef-sql2022-ws2022-developer-gen2
+  publisher: dcassociatesgroup-com
+  offer: sql-server-2022
+  sku: sqldev-gen2
+test:
+  vm_size: Standard_D4as_v5
