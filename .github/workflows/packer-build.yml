@@ -175,7 +175,6 @@ jobs:
             -var "build_resource_group_name=RG-PACKER-IMAGE-FACTORY-EASTUS" \
             -var "vm_size=${{ steps.profile.outputs.vm_size }}" \
             "${MANAGED_IMAGE_ARGS[@]}" \
-            -var "architecture=$ARCH" \
             -var "source_image_publisher=${{ steps.profile.outputs.source_pub }}" \
             -var "source_image_offer=${{ steps.profile.outputs.source_offer }}" \
             -var "source_image_sku=${{ steps.profile.outputs.source_sku }}" \
