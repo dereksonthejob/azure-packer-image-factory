@@ -58,6 +58,8 @@ jobs:
           plan_pub="$(awk -F': ' '$1 ~ /plan_publisher/{print $2; exit}' "$PROFILE_FILE")"
           plan_offer="$(awk -F': ' '$1 ~ /plan_product/{print $2; exit}' "$PROFILE_FILE")"
           plan_sku="$(awk -F': ' '$1 ~ /plan_name/{print $2; exit}' "$PROFILE_FILE")"
+          architecture="$(awk -F': ' '/^architecture:/{print $2; exit}' "$PROFILE_FILE")"
+          architecture="${architecture:-x64}"
 
           IFS=':' read -r source_pub source_offer source_sku source_ver <<< "$source_urn"
 
@@ -69,6 +71,7 @@ jobs:
           echo "source_ver=$source_ver" >> "$GITHUB_OUTPUT"
           echo "image_definition=$image_def" >> "$GITHUB_OUTPUT"
           echo "vm_size=$vm_size" >> "$GITHUB_OUTPUT"
+          echo "architecture=$architecture" >> "$GITHUB_OUTPUT"
           echo "plan_pub=$plan_pub" >> "$GITHUB_OUTPUT"
           echo "plan_product=$plan_offer" >> "$GITHUB_OUTPUT"
           echo "plan_name=$plan_sku" >> "$GITHUB_OUTPUT"
@@ -154,14 +157,25 @@ jobs:
           fi
 
           packer init "$TEMPLATE_FILE"
-          
+
+          ARCH="${{ steps.profile.outputs.architecture }}"
+          ARCH="${ARCH:-x64}"
+
+          # Arm64: skip managed_image_name (Azure does not support managed images from Arm64 source VMs)
+          if [ "$ARCH" == "Arm64" ]; then
+            MANAGED_IMAGE_ARGS=(-var "managed_image_name=unused-arm64-${{ github.run_id }}")
+          else
+            MANAGED_IMAGE_ARGS=(-var "managed_image_name=${{ steps.profile.outputs.profile_id }}-${{ github.run_id }}")
+          fi
+
           packer build \
             -force \
             -var "profile_id=${{ steps.profile.outputs.profile_id }}" \
             -var "location=eastus" \
             -var "build_resource_group_name=RG-PACKER-IMAGE-FACTORY-EASTUS" \
             -var "vm_size=${{ steps.profile.outputs.vm_size }}" \
-            -var "managed_image_name=${{ steps.profile.outputs.profile_id }}-${{ github.run_id }}" \
+            "${MANAGED_IMAGE_ARGS[@]}" \
+            -var "architecture=$ARCH" \
             -var "source_image_publisher=${{ steps.profile.outputs.source_pub }}" \
             -var "source_image_offer=${{ steps.profile.outputs.source_offer }}" \
             -var "source_image_sku=${{ steps.profile.outputs.source_sku }}" \
@@ -214,6 +228,7 @@ jobs:
           retention-days: 5
 
       - name: Send Email Notification
+        continue-on-error: true
         if: always()
         uses: dawidd6/action-send-mail@v3
         with:
