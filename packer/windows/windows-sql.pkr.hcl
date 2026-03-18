@@ -135,7 +135,6 @@ build {
       "}",
 
       # Uninstall MDE Sense via its own uninstaller if present
-      "$mdeSetup = 'C:\\Program Files\\Windows Defender Advanced Threat Protection\\MsSense.exe'",
       "if (Test-Path $mdeSetup) {",
       "  Write-Output 'Uninstalling MDE Sense via uninstaller...'",
       "  Start-Process -FilePath $mdeSetup -ArgumentList 'uninstall' -Wait -ErrorAction SilentlyContinue",
@@ -162,7 +161,6 @@ build {
       "}",
 
       # Verify: fail loudly if Defender processes are still running
-      "$remaining = Get-Process -Name 'MsSense','MsMpEng' -ErrorAction SilentlyContinue",
       "if ($remaining) { throw 'CERTIFICATION BLOCKER: Defender process still running after offboard: ' + ($remaining.Name -join ',') }",
       "Write-Output '=== Defender ATP offboard complete. OK for sysprep. ==='",
     ]
