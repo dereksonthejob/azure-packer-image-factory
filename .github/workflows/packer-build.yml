@@ -226,28 +226,3 @@ jobs:
           name: security-evidence-${{ steps.profile.outputs.profile_id }}
           path: evidence/scans/
           retention-days: 5
-
-      - name: Send Email Notification
-        continue-on-error: true
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.office365.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Packer Build ${{ job.status }}: ${{ steps.profile.outputs.profile_id }}"
-          to: "agent@dcassociatesgroup.com"
-          from: "GitHub Actions Automation <${{ secrets.MAIL_USERNAME }}>"
-          body: |
-            The Packer image build run has concluded.
-            
-            Status: ${{ job.status }}
-            Profile ID: ${{ steps.profile.outputs.profile_id }}
-            Image Version: ${{ inputs.image_version }}
-            Target Image Definition: ${{ steps.profile.outputs.image_definition }}
-            Target Compute Gallery: acgpackerfactoryeastus (Resource Group: RG-PACKER-IMAGE-FACTORY-EASTUS)
-            Target Region: eastus
-            
-            Link to complete logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
