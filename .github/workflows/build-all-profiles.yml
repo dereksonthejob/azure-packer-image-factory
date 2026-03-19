@@ -57,7 +57,7 @@ jobs:
           set -e
           LOCATION="eastus"
           # vCPUs consumed per job: most profiles use Standard_E4s_v5 = 4 vCPUs
-          # max-parallel is 4, so peak demand = 4 × 4 = 16 vCPUs
+          # max-parallel is 4, so peak demand = 4 x 4 = 16 vCPUs
           MAX_PARALLEL=7
           VCPUS_PER_BUILD=4
           REQUIRED=$((MAX_PARALLEL * VCPUS_PER_BUILD))
@@ -75,8 +75,8 @@ jobs:
           DSV3_LIMIT=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("DSv3")) | .limit' | head -1)
           DSV3_AVAIL=$((DSV3_LIMIT - DSV3_USED))
 
-          echo "Regional vCPUs: $REGIONAL_USED used / $REGIONAL_LIMIT limit → $REGIONAL_AVAIL available"
-          echo "Standard DSv3  : $DSV3_USED used / $DSV3_LIMIT limit → $DSV3_AVAIL available"
+          echo "Regional vCPUs: $REGIONAL_USED used / $REGIONAL_LIMIT limit -> $REGIONAL_AVAIL available"
+          echo "Standard DSv3  : $DSV3_USED used / $DSV3_LIMIT limit -> $DSV3_AVAIL available"
           echo "Required for this run: $REQUIRED vCPUs"
 
           WARN=false
@@ -92,7 +92,7 @@ jobs:
           if [ "$WARN" = "true" ]; then
             echo "::warning ::Consider reducing max-parallel or requesting a quota increase before running."
           else
-            echo "Quota OK — sufficient headroom for $MAX_PARALLEL concurrent builds."
+            echo "Quota OK -- sufficient headroom for $MAX_PARALLEL concurrent builds."
           fi
 
   build:
@@ -152,7 +152,7 @@ jobs:
         shell: bash
         run: |
           if ! command -v az &> /dev/null; then
-            echo "Azure CLI not found — installing via non-interactive apt..."
+            echo "Azure CLI not found -- installing via non-interactive apt..."
             # Use sudo -n (non-interactive, never prompt for password) so the step
             # fails fast with a clear error if passwordless sudo is not configured,
             # rather than hanging on a terminal password prompt.
@@ -331,7 +331,7 @@ EOF
             tail -n 100 packerbuild.log > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
             grep -i "error\|timeout\|failed\|winrm" packerbuild.log | tail -n 30 >> "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt" || true
           else
-            echo "packerbuild.log not found — build failed before packer started (pre-flight step failure)" \
+            echo "packerbuild.log not found -- build failed before packer started (pre-flight step failure)" \
               > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
           fi
           # Copy debug log into evidence if it exists
