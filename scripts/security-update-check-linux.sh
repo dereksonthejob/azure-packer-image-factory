@@ -45,6 +45,14 @@ if command -v apt-get &> /dev/null; then
     export DEBIAN_FRONTEND=noninteractive
     DPKG_OPTS="-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
 
+    # Kali Linux: refresh GPG archive keyring before apt-get update
+    # Key 827C8569F2518CC677FECA1AED65462EC8D5E4C5 expires periodically
+    if [ -f /etc/apt/sources.list.d/kali.list ] || grep -qs 'kali' /etc/apt/sources.list 2>/dev/null; then
+        echo "Kali Linux detected — refreshing archive keyring..."
+        wget -qO - https://archive.kali.org/archive-key.asc | sudo gpg --dearmor -o /usr/share/keyrings/kali-archive-keyring.gpg 2>/dev/null || true
+        sudo apt-get install -y --allow-unauthenticated kali-archive-keyring 2>/dev/null || true
+    fi
+
     echo "Refreshing apt package index..."
     sudo apt-get update -qq
 
