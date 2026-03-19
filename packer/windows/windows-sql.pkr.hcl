@@ -121,14 +121,14 @@ build {
   # -----------------------------------------------------------------------
   provisioner "file" {
     source      = "${path.root}/../../scripts/Invoke-MarketplaceImageHardening.ps1"
-    destination = "C:\Windows\Temp\Invoke-MarketplaceImageHardening.ps1"
+    destination = "C:\\Windows\\Temp\\Invoke-MarketplaceImageHardening.ps1"
     direction   = "upload"
   }
 
   provisioner "powershell" {
     inline = [
       "# Policy 200.4.2 (Defender ATP) + Policy 200.5.8 (.NET 6 EOL)",
-      "& C:\Windows\Temp\Invoke-MarketplaceImageHardening.ps1 -ErrorAction Stop"
+      "& C:\\Windows\\Temp\\Invoke-MarketplaceImageHardening.ps1 -ErrorAction Stop"
     ]
   }
 
