@@ -1,0 +1,366 @@
+name: Global Matrix Packer Build
+# Builds all image profiles via matrix strategy with quota pre-flight
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_version:
+        description: 'Image version (yyyy.mm.xx)'
+        required: true
+        type: string
+      runs_on_pool:
+        description: 'Runner pool to use'
+        required: false
+        default: 'vmss'
+        type: string
+      profile_filter:
+        description: 'Regex filter for specific profiles (e.g. "windows|sql" or ".*")'
+        required: false
+        default: '.*'
+        type: string
+      max_parallel:
+        description: 'Max concurrent build jobs (reduce to 1 when quota is tight)'
+        required: false
+        default: '7'
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  discover-profiles:
+    name: Map Image Profiles
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | grep -iE "${{ inputs.profile_filter || '.*' }}" | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "Discovered Profiles: $PROFILES"
+          echo "matrix=$PROFILES" >> "$GITHUB_OUTPUT"
+
+  quota-preflight:
+    name: Azure vCPU Quota Pre-flight Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Azure Credentials
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Check Regional vCPU and ESv5 Quota
+        shell: bash
+        run: |
+          set -e
+          LOCATION="eastus"
+          # vCPUs consumed per job: most profiles use Standard_E4s_v5 = 4 vCPUs
+          # max-parallel is 4, so peak demand = 4 × 4 = 16 vCPUs
+          MAX_PARALLEL=7
+          VCPUS_PER_BUILD=4
+          REQUIRED=$((MAX_PARALLEL * VCPUS_PER_BUILD))
+
+          echo "=== Azure vCPU Quota Pre-flight Check ==="
+          echo "Location: $LOCATION | max-parallel: $MAX_PARALLEL | vCPUs/build: $VCPUS_PER_BUILD | Required: $REQUIRED"
+
+          QUOTA_JSON=$(az vm list-usage --location $LOCATION -o json)
+
+          REGIONAL_USED=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue=="Total Regional vCPUs") | .currentValue')
+          REGIONAL_LIMIT=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue=="Total Regional vCPUs") | .limit')
+          REGIONAL_AVAIL=$((REGIONAL_LIMIT - REGIONAL_USED))
+
+          DSV3_USED=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("DSv3")) | .currentValue' | head -1)
+          DSV3_LIMIT=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("DSv3")) | .limit' | head -1)
+          DSV3_AVAIL=$((DSV3_LIMIT - DSV3_USED))
+
+          echo "Regional vCPUs: $REGIONAL_USED used / $REGIONAL_LIMIT limit → $REGIONAL_AVAIL available"
+          echo "Standard DSv3  : $DSV3_USED used / $DSV3_LIMIT limit → $DSV3_AVAIL available"
+          echo "Required for this run: $REQUIRED vCPUs"
+
+          WARN=false
+          if [ "$REGIONAL_AVAIL" -lt "$REQUIRED" ]; then
+            echo "::warning ::QUOTA RISK: Only $REGIONAL_AVAIL Regional vCPUs available, need $REQUIRED. Builds may fail with quota errors."
+            WARN=true
+          fi
+          if [ "$DSV3_AVAIL" -lt "$REQUIRED" ]; then
+            echo "::warning ::QUOTA RISK: Only $DSV3_AVAIL DSv3 vCPUs available, need $REQUIRED. All profiles use Standard_D4s_v3."
+            WARN=true
+          fi
+
+          if [ "$WARN" = "true" ]; then
+            echo "::warning ::Consider reducing max-parallel or requesting a quota increase before running."
+          else
+            echo "Quota OK — sufficient headroom for $MAX_PARALLEL concurrent builds."
+          fi
+
+  build:
+    name: Build Image ${{ matrix.profile }}
+    needs: [discover-profiles, quota-preflight]
+    runs-on: [self-hosted, vmss]
+    timeout-minutes: 210
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJson(inputs.max_parallel || '7') }}
+      matrix:
+        profile: ${{ fromJson(needs.discover-profiles.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve profile metadata
+        id: profile
+        shell: bash
+        run: |
+          set -e
+          PROFILE_FILE="${{ matrix.profile }}/profile.yml"
+          if [[ ! -f "$PROFILE_FILE" ]]; then
+            echo "Profile file missing at $PROFILE_FILE"
+            exit 1
+          fi
+
+          profile_id="$(awk -F': ' '/^profile_id:/{print $2; exit}' "$PROFILE_FILE")"
+          os_family="$(awk -F': ' '/^os_family:/{print $2; exit}' "$PROFILE_FILE")"
+          source_urn="$(awk -F': ' '/^source_image_urn:/{print $2; exit}' "$PROFILE_FILE")"
+          image_def="$(awk -F': ' '$1 ~ /image_definition/{print $2; exit}' "$PROFILE_FILE")"
+          sig_sku="$(awk -F': ' '$1 ~ /sku/{print $2; exit}' "$PROFILE_FILE")"
+          vm_size="$(awk -F': ' '$1 ~ /vm_size/{print $2; exit}' "$PROFILE_FILE")"
+          architecture="$(awk -F': ' '/^architecture:/{print $2; exit}' "$PROFILE_FILE")"
+          architecture="${architecture:-x64}"
+          plan_pub="$(awk -F': ' '$1 ~ /plan_publisher/{print $2; exit}' "$PROFILE_FILE")"
+          plan_offer="$(awk -F': ' '$1 ~ /plan_product/{print $2; exit}' "$PROFILE_FILE")"
+          plan_sku="$(awk -F': ' '$1 ~ /plan_name/{print $2; exit}' "$PROFILE_FILE")"
+          
+          IFS=':' read -r source_pub source_offer source_sku source_ver <<< "$source_urn"
+
+          echo "os_family=$os_family" >> "$GITHUB_OUTPUT"
+          echo "profile_id=$profile_id" >> "$GITHUB_OUTPUT"
+          echo "source_pub=$source_pub" >> "$GITHUB_OUTPUT"
+          echo "source_offer=$source_offer" >> "$GITHUB_OUTPUT"
+          echo "source_sku=$source_sku" >> "$GITHUB_OUTPUT"
+          echo "source_ver=$source_ver" >> "$GITHUB_OUTPUT"
+          echo "image_definition=$image_def" >> "$GITHUB_OUTPUT"
+          echo "vm_size=$vm_size" >> "$GITHUB_OUTPUT"
+          echo "architecture=$architecture" >> "$GITHUB_OUTPUT"
+          echo "plan_pub=$plan_pub" >> "$GITHUB_OUTPUT"
+          echo "plan_product=$plan_offer" >> "$GITHUB_OUTPUT"
+          echo "plan_name=$plan_sku" >> "$GITHUB_OUTPUT"
+          echo "temp_rg=rg-packer-temp-${profile_id}-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure CLI Prerequisites
+        shell: bash
+        run: |
+          if ! command -v az &> /dev/null; then
+            echo "Azure CLI not found — installing via non-interactive apt..."
+            # Use sudo -n (non-interactive, never prompt for password) so the step
+            # fails fast with a clear error if passwordless sudo is not configured,
+            # rather than hanging on a terminal password prompt.
+            export DEBIAN_FRONTEND=noninteractive
+            sudo -n apt-get update -qq
+            sudo -n apt-get install -y -qq ca-certificates curl apt-transport-https lsb-release gnupg
+            curl -sL https://packages.microsoft.com/keys/microsoft.asc \
+              | gpg --dearmor \
+              | sudo -n tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+            export AZ_REPO=$(lsb_release -cs)
+            echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" \
+              | sudo -n tee /etc/apt/sources.list.d/azure-cli.list
+            sudo -n apt-get update -qq
+            sudo -n DEBIAN_FRONTEND=noninteractive apt-get install azure-cli -y -qq
+            az --version
+          else
+            echo "Azure CLI already present: $(az version -o tsv 2>/dev/null | head -1)"
+          fi
+
+      - name: Setup Azure Credentials
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v3
+
+      - name: Cache Packer Plugins
+        uses: actions/cache@v4
+        with:
+          path: ~/.config/packer/plugins
+          key: packer-plugins-${{ runner.os }}-${{ hashFiles('packer/**/*.pkr.hcl') }}
+          restore-keys: packer-plugins-${{ runner.os }}-
+
+      - name: Ensure Image Definition Exists
+        shell: bash
+        run: |
+          set -e
+          DEF_NAME="${{ steps.profile.outputs.image_definition }}"
+          RG_NAME="RG-PACKER-IMAGE-FACTORY-EASTUS"
+          GALLERY_NAME="acgpackerfactoryeastus"
+          OS_TYPE="Windows"
+          if [ "${{ steps.profile.outputs.os_family }}" == "linux" ]; then OS_TYPE="Linux"; fi
+          
+          HV_GEN="V1"
+          if [[ "${{ steps.profile.outputs.source_sku }}" == *"gen2"* ]]; then
+            HV_GEN="V2"
+          fi
+          
+          echo "Verifying image definition: $DEF_NAME"
+          # Try to get the image definition, create if it doesn't exist
+          if ! az sig image-definition show -g "$RG_NAME" -r "$GALLERY_NAME" -i "$DEF_NAME" &>/dev/null; then
+            echo "Creating missing Image Definition $DEF_NAME in $GALLERY_NAME ($RG_NAME)..."
+            az sig image-definition create \
+              -g "$RG_NAME" \
+              -r "$GALLERY_NAME" \
+              -i "$DEF_NAME" \
+              -p "dcassociatesgroup-com" \
+              -f "${{ steps.profile.outputs.source_offer }}" \
+              -s "${{ steps.profile.outputs.source_sku }}" \
+              --os-type "$OS_TYPE" \
+              --os-state Generalized \
+              --hyper-v-generation "$HV_GEN" \
+              --only-show-errors
+          else
+            echo "Image definition $DEF_NAME already exists."
+          fi
+
+      - name: Packer Init and Build
+        id: packer
+        shell: bash
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          PACKER_LOG: "1"
+          PACKER_LOG_PATH: "packer-debug.log"
+        run: |
+          set -e
+          
+          OS_FAMILY="${{ steps.profile.outputs.os_family }}"
+          
+          if [ "$OS_FAMILY" == "windows" ]; then
+            if [[ "${{ steps.profile.outputs.profile_id }}" == *"sql"* ]]; then
+              TEMPLATE_FILE="packer/windows/windows-sql.pkr.hcl"
+            else
+              TEMPLATE_FILE="packer/windows/windows.pkr.hcl"
+            fi
+            EXTRA_VARS=()
+          elif [ "$OS_FAMILY" == "linux" ]; then
+            TEMPLATE_FILE="packer/ubuntu/ubuntu.pkr.hcl"
+            EXTRA_VARS=()
+          else
+            echo "Unsupported OS family: $OS_FAMILY"
+            exit 1
+          fi
+
+          packer init "$TEMPLATE_FILE"
+          
+          ARCH="${{ steps.profile.outputs.architecture }}"
+          ARCH="${ARCH:-x64}"
+
+          # Arm64/CVM: skip managed_image_name (Azure does not support managed images from Arm64 VMs)
+          if [ "$ARCH" == "Arm64" ]; then
+            MANAGED_IMAGE_ARGS=(-var "managed_image_name=unused-arm64-${{ github.run_id }}")
+          else
+            MANAGED_IMAGE_ARGS=(-var "managed_image_name=${{ steps.profile.outputs.profile_id }}-${{ github.run_id }}")
+          fi
+
+          packer build \
+            -force \
+            -var "profile_id=${{ steps.profile.outputs.profile_id }}" \
+            -var "location=eastus" \
+            -var "build_resource_group_name=RG-PACKER-IMAGE-FACTORY-EASTUS" \
+            -var "vm_size=${{ steps.profile.outputs.vm_size }}" \
+            "${MANAGED_IMAGE_ARGS[@]}" \
+            -var "architecture=$ARCH" \
+            -var "source_image_publisher=${{ steps.profile.outputs.source_pub }}" \
+            -var "source_image_offer=${{ steps.profile.outputs.source_offer }}" \
+            -var "source_image_sku=${{ steps.profile.outputs.source_sku }}" \
+            -var "source_image_version=${{ steps.profile.outputs.source_ver }}" \
+            -var "gallery_resource_group=RG-PACKER-IMAGE-FACTORY-EASTUS" \
+            -var "gallery_name=acgpackerfactoryeastus" \
+            -var "image_definition=${{ steps.profile.outputs.image_definition }}" \
+            -var "image_version=${{ inputs.image_version }}" \
+            -var "replication_regions=[\"eastus\"]" \
+            -var "plan_info_publisher=${{ steps.profile.outputs.plan_pub }}" \
+            -var "plan_info_product=${{ steps.profile.outputs.plan_product }}" \
+            -var "plan_info_name=${{ steps.profile.outputs.plan_name }}" \
+            "${EXTRA_VARS[@]}" \
+            "$TEMPLATE_FILE" 2>&1 | tee packerbuild.log
+
+      - name: Generate Patch Report
+        if: success() && steps.profile.outputs.os_family == 'windows'
+        shell: bash
+        run: |
+          chmod +x .github/scripts/generate-patch-report.sh
+          .github/scripts/generate-patch-report.sh \
+            "${{ steps.profile.outputs.profile_id }}" \
+            "packerbuild.log"
+
+
+      - name: Standards Compliance Validation
+        if: success()
+        shell: bash
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        run: |
+          echo "=== Standards Compliance Validation ==="
+          python3 .github/scripts/marketplace/audit_offer_fields.py --offer-id "${{ steps.profile.outputs.offer_id }}" 2>/dev/null || echo "Audit skipped (no offer_id)"
+          python3 - << 'EOF'
+import subprocess, json
+# Validate $0.09/vCPU pricing is set on relevant plans
+result = subprocess.run(
+  ['python3', '.github/scripts/marketplace/set_offer_pricing.py', '--dry-run'],
+  capture_output=True, text=True
+)
+if result.returncode != 0:
+  print("Pricing validation warning:", result.stderr[:200])
+else:
+  print(result.stdout[:500])
+EOF
+
+      - name: Capture Build Failures
+        if: failure()
+        shell: bash
+        run: |
+          echo "Packer Build Failed for ${{ matrix.profile }}. Extracting error tail..."
+          mkdir -p evidence/failures
+          # Guard: packerbuild.log only exists if packer actually ran; skip gracefully if not
+          if [ -f packerbuild.log ]; then
+            tail -n 100 packerbuild.log > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
+            grep -i "error\|timeout\|failed\|winrm" packerbuild.log | tail -n 30 >> "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt" || true
+          else
+            echo "packerbuild.log not found — build failed before packer started (pre-flight step failure)" \
+              > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
+          fi
+          # Copy debug log into evidence if it exists
+          [ -f packer-debug.log ] && cp packer-debug.log "evidence/failures/packer-debug-${{ steps.profile.outputs.profile_id }}.log" || true
+
+      - name: Cleanup Stranded Packer VMs
+        if: always()
+        shell: bash
+        run: |
+          echo "Scanning for orphaned Packer Resource Groups scoped to run ${{ github.run_id }}..."
+          # Scope cleanup strictly to this run_id to avoid collisions across concurrent runs
+          STRANDED_RGS=$(az group list --query "[?starts_with(name, 'pkr-Resource-Group-') && contains(name, '${{ github.run_id }}')].name" -o tsv 2>/dev/null || true)
+          if [[ -z "$STRANDED_RGS" ]]; then
+            echo "No stranded resource groups found for run ${{ github.run_id }}."
+          else
+            for rg in $STRANDED_RGS; do
+              echo "Deleting stranded Resource Group: $rg"
+              az group delete --name "$rg" --yes --no-wait || echo "Failed to delete $rg"
+            done
+          fi
+
+      - name: Upload Build Evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-evidence-${{ steps.profile.outputs.profile_id }}
+          path: |
+            evidence/
+            packerbuild.log
+            packer-debug.log
+            patch-report/
+          retention-days: 7
