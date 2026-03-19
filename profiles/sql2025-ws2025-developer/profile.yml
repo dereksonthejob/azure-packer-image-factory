@@ -1,4 +1,4 @@
-profile_id: sql2025-ws2025-developer-gen2
+profile_id: sql2025-ws2025-developer
 os_family: windows
 source_image_urn: MicrosoftSQLServer:sql2025-ws2025:entdev-gen2:latest
 security_type: TrustedLaunchSupported

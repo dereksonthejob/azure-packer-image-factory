@@ -1,0 +1,13 @@
+profile_id: windows-server-2025-azure-edition
+os_family: windows
+# Windows Server 2025 Datacenter Azure Edition — hotpatch + Azure-native features
+# Top seller for 2025: early adopters, modern workloads, Azure-deep integration
+source_image_urn: MicrosoftWindowsServer:WindowsServer:2025-datacenter-azure-edition:latest
+security_type: TrustedLaunchSupported
+
+gallery:
+  image_definition: imgdef-windows-server-2025-azure-edition-gen2
+  publisher: MicrosoftWindowsServer
+  offer: WindowsServer
+  sku: 2025-datacenter-azure-edition
+vm_size: Standard_D4s_v5

@@ -1,4 +1,4 @@
-profile_id: sql2019-ws2022-standard-gen2
+profile_id: sql2019-ws2022-standard
 os_family: windows
 source_image_urn: MicrosoftSQLServer:sql2019-ws2022:standard-gen2:latest
 security_type: TrustedLaunchSupported
