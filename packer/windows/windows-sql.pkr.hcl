@@ -110,9 +110,6 @@ build {
     update_limit = 1000
   }
 
-      "Write-Output 'Mitigation Complete.'"
-    ]
-  }
 
   # -----------------------------------------------------------------------
   # MANDATORY: Policy 200.4.2 — Remove Microsoft Defender ATP before capture
@@ -129,40 +126,6 @@ build {
     inline = [
       "# Policy 200.4.2 (Defender ATP) + Policy 200.5.8 (.NET 6 EOL)",
       "& C:\\Windows\\Temp\\Invoke-MarketplaceImageHardening.ps1 -ErrorAction Stop"
-    ]
-  }
-
-      "}",
-
-      # Uninstall MDE Sense via its own uninstaller if present
-      "if (Test-Path $mdeSetup) {",
-      "  Write-Output 'Uninstalling MDE Sense via uninstaller...'",
-      "  Start-Process -FilePath $mdeSetup -ArgumentList 'uninstall' -Wait -ErrorAction SilentlyContinue",
-      "}",
-
-      # Remove Defender offboarding registry keys that could leak tenant info
-      "$regPaths = @(",
-      "  'HKLM:\\SOFTWARE\\Microsoft\\Windows Advanced Threat Protection',",
-      "  'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Advanced Threat Protection',",
-      "  'HKLM:\\SOFTWARE\\Microsoft\\Windows Defender\\Spynet'",
-      ")",
-      "foreach ($rp in $regPaths) {",
-      "  if (Test-Path $rp) { Remove-Item -Path $rp -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed registry: $rp\" }",
-      "}",
-
-      # Remove Sense/ATP data directories
-      "$dirs = @(",
-      "  'C:\\ProgramData\\Microsoft\\Windows Defender Advanced Threat Protection',",
-      "  'C:\\Program Files\\Windows Defender Advanced Threat Protection\\Cyber',",
-      "  'C:\\ProgramData\\Microsoft\\MDE'",
-      ")",
-      "foreach ($d in $dirs) {",
-      "  if (Test-Path $d) { Remove-Item -Path $d -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed: $d\" }",
-      "}",
-
-      # Verify: fail loudly if Defender processes are still running
-      "if ($remaining) { throw 'CERTIFICATION BLOCKER: Defender process still running after offboard: ' + ($remaining.Name -join ',') }",
-      "Write-Output '=== Defender ATP offboard complete. OK for sysprep. ==='",
     ]
   }
 
