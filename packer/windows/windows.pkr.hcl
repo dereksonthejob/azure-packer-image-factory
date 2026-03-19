@@ -110,9 +110,6 @@ build {
     update_limit = 1000
   }
 
-      "Write-Output 'Mitigation Complete.'"
-    ]
-  }
 
   # -----------------------------------------------------------------------
   # MANDATORY: Policy 200.4.2 — Remove Microsoft Defender ATP before capture
@@ -132,32 +129,6 @@ build {
     ]
   }
 
-      "}",
-      "if (Test-Path $mdeSetup) {",
-      "  Start-Process -FilePath $mdeSetup -ArgumentList 'uninstall' -Wait -ErrorAction SilentlyContinue",
-      "}",
-
-      "$regPaths = @(",
-      "  'HKLM:\\SOFTWARE\\Microsoft\\Windows Advanced Threat Protection',",
-      "  'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Advanced Threat Protection',",
-      "  'HKLM:\\SOFTWARE\\Microsoft\\Windows Defender\\Spynet'",
-      ")",
-      "foreach ($rp in $regPaths) {",
-      "  if (Test-Path $rp) { Remove-Item -Path $rp -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed registry: $rp\" }",
-      "}",
-
-      "$dirs = @(",
-      "  'C:\\ProgramData\\Microsoft\\Windows Defender Advanced Threat Protection',",
-      "  'C:\\Program Files\\Windows Defender Advanced Threat Protection\\Cyber',",
-      "  'C:\\ProgramData\\Microsoft\\MDE'",
-      ")",
-      "foreach ($d in $dirs) {",
-      "  if (Test-Path $d) { Remove-Item -Path $d -Recurse -Force -ErrorAction SilentlyContinue; Write-Output \"Removed: $d\" }",
-      "}",
-      "if ($remaining) { throw 'CERTIFICATION BLOCKER: Defender process still running: ' + ($remaining.Name -join ',') }",
-      "Write-Output '=== Defender ATP offboard complete. OK for sysprep. ==='",
-    ]
-  }
 
   provisioner "powershell" {
     inline = [
