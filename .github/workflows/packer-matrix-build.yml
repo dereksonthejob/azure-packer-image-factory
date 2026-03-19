@@ -1,4 +1,5 @@
 name: Global Matrix Packer Build
+# Builds all image profiles via matrix strategy with quota pre-flight
 
 on:
   workflow_dispatch:
