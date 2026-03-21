@@ -75,14 +75,14 @@ jobs:
           echo "temp_rg=rg-packer-temp-${profile_id}-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
 
       - name: Ensure CLI Prerequisites
+        shell: bash
         run: |
           if ! command -v az &> /dev/null; then
-            echo "Installing Azure CLI locally using Python pip (rootless)..."
-            curl -sS https://bootstrap.pypa.io/get-pip.py | python3 - --user
-            export PATH="$HOME/.local/bin:$PATH"
-            python3 -m pip install --user azure-cli
-            echo "$HOME/.local/bin" >> $GITHUB_PATH
+            echo "Azure CLI not found — installing via official script..."
+            curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
             az --version
+          else
+            echo "Azure CLI already present: $(az version -o tsv 2>/dev/null | head -1)"
           fi
 
       - name: Setup Azure Credentials
