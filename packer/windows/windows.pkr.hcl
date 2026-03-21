@@ -58,7 +58,7 @@ source "azure-arm" "image" {
   communicator   = "winrm"
   winrm_use_ssl  = true
   winrm_insecure = true
-  winrm_timeout  = "10m"
+  winrm_timeout  = "30m"
   winrm_username = "packer"
 
   # Cap ARM polling so a hung deployment fails fast instead of blocking for hours
