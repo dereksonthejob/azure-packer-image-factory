@@ -303,30 +303,57 @@ jobs:
         shell: bash
         run: |
           RG="RG-PACKER-IMAGE-FACTORY-EASTUS"
-          echo "Scanning for orphaned Packer resources in $RG..."
+          MAX_AGE_HOURS=2
+          NOW_EPOCH=$(date -u +%s)
+          echo "Scanning for orphaned Packer resources in $RG (older than ${MAX_AGE_HOURS}h)..."
 
-          # Delete orphaned VMs (named pkrvm*)
-          STRANDED_VMS=$(az vm list -g "$RG" --query "[?starts_with(name, 'pkrvm')].name" -o tsv 2>/dev/null || true)
-          for vm in $STRANDED_VMS; do
-            echo "Deleting orphaned VM: $vm"
+          # --- VMs: delete only orphaned VMs older than MAX_AGE_HOURS ---
+          PACKER_VMS=$(az vm list -g "$RG" --query "[?starts_with(name, 'pkrvm')].{name:name,time:timeCreated}" -o json 2>/dev/null || echo "[]")
+          echo "$PACKER_VMS" | python3 -c "
+          import json, sys, datetime
+          vms = json.load(sys.stdin)
+          now = datetime.datetime.now(datetime.timezone.utc)
+          for vm in vms:
+              created = datetime.datetime.fromisoformat(vm['time'].replace('Z','+00:00'))
+              age_hours = (now - created).total_seconds() / 3600
+              if age_hours > $MAX_AGE_HOURS:
+                  print(vm['name'])
+          " 2>/dev/null | while read vm; do
+            echo "Deleting orphaned VM: $vm (older than ${MAX_AGE_HOURS}h)"
             az vm delete -g "$RG" -n "$vm" --yes --no-wait 2>/dev/null || true
           done
 
-          # Delete orphaned NICs
-          STRANDED_NICS=$(az network nic list -g "$RG" --query "[?starts_with(name, 'pkr')].name" -o tsv 2>/dev/null || true)
-          for nic in $STRANDED_NICS; do
+          # --- NICs: skip tagged do-not-delete ---
+          PACKER_NICS=$(az network nic list -g "$RG" --query "[?starts_with(name, 'pkr')].{name:name, tags:tags}" -o json 2>/dev/null || echo "[]")
+          echo "$PACKER_NICS" | python3 -c "
+          import json, sys
+          nics = json.load(sys.stdin)
+          for nic in nics:
+              tags = nic.get('tags') or {}
+              if tags.get('do-not-delete') == 'true':
+                  continue
+              print(nic['name'])
+          " 2>/dev/null | while read nic; do
             echo "Deleting orphaned NIC: $nic"
             az network nic delete -g "$RG" -n "$nic" --no-wait 2>/dev/null || true
           done
 
-          # Delete orphaned KeyVaults
-          STRANDED_KVS=$(az keyvault list -g "$RG" --query "[?starts_with(name, 'pkrkv')].name" -o tsv 2>/dev/null || true)
-          for kv in $STRANDED_KVS; do
+          # --- KeyVaults: skip tagged do-not-delete ---
+          PACKER_KVS=$(az keyvault list -g "$RG" --query "[?starts_with(name, 'pkrkv')].{name:name, tags:tags}" -o json 2>/dev/null || echo "[]")
+          echo "$PACKER_KVS" | python3 -c "
+          import json, sys
+          kvs = json.load(sys.stdin)
+          for kv in kvs:
+              tags = kv.get('tags') or {}
+              if tags.get('do-not-delete') == 'true':
+                  continue
+              print(kv['name'])
+          " 2>/dev/null | while read kv; do
             echo "Purging orphaned KeyVault: $kv"
             az keyvault delete -n "$kv" -g "$RG" --no-wait 2>/dev/null || true
           done
 
-          # Also check for temp RGs (legacy fallback)
+          # --- Also check for temp RGs (legacy fallback) ---
           STRANDED_RGS=$(az group list --query "[?starts_with(name, 'pkr-Resource-Group-')].name" -o tsv 2>/dev/null || true)
           for rg in $STRANDED_RGS; do
             echo "Deleting stranded RG: $rg"
