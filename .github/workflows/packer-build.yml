@@ -104,7 +104,9 @@ jobs:
           if [ "${{ steps.profile.outputs.os_family }}" == "linux" ]; then OS_TYPE="Linux"; fi
           
           HV_GEN="V1"
-          if [[ "${{ steps.profile.outputs.source_sku }}" == *"gen2"* ]]; then
+          SKU="${{ steps.profile.outputs.source_sku }}"
+          DEF_LC=$(echo "$DEF_NAME" | tr '[:upper:]' '[:lower:]')
+          if [[ "$SKU" == *"gen2"* ]] || [[ "$SKU" == *"-g2"* ]] || [[ "$SKU" == *"gensecond"* ]] || [[ "$SKU" == *"azure-edition"* ]] || [[ "$DEF_LC" == *"gen2"* ]]; then
             HV_GEN="V2"
           fi
           

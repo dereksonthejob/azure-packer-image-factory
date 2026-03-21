@@ -1,13 +1,12 @@
 profile_id: windows-server-2022-hotpatch
 os_family: windows
-# Windows Server 2022 Datacenter Azure Edition with Hotpatch
-# #1 selling WS2022 SKU — zero-reboot security updates via hotpatching, required for AVD
 source_image_urn: MicrosoftWindowsServer:WindowsServer:2022-datacenter-azure-edition-hotpatch:latest
 security_type: TrustedLaunchSupported
-
+vm_size: Standard_D4ads_v6
 gallery:
   image_definition: imgdef-windows-server-2022-hotpatch-gen2
-  publisher: MicrosoftWindowsServer
-  offer: WindowsServer
+  publisher: dcassociatesgroup-com
+  offer: windows-server-2022
   sku: 2022-datacenter-azure-edition-hotpatch
-vm_size: Standard_D4s_v4
+test:
+  vm_size: Standard_D4ads_v6

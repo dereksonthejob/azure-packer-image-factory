@@ -1,11 +1,12 @@
 profile_id: rhel-9-gen2
 os_family: linux
-source_image_urn: RedHat:RHEL:9_4-gen2:latest
+source_image_urn: RedHat:RHEL:96-gen2:latest
 security_type: TrustedLaunchSupported
+vm_size: Standard_D4ads_v6
 gallery:
   image_definition: imgdef-rhel-9-gen2
   publisher: dcassociatesgroup-com
   offer: redhat-offers-v2
   sku: rhel-9-gen2
 test:
-  vm_size: Standard_D4s_v3
+  vm_size: Standard_D4ads_v6

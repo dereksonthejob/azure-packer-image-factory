@@ -2,10 +2,11 @@ profile_id: suse-15sp6-gen2
 os_family: linux
 source_image_urn: SUSE:sles-15-sp6:gen2:latest
 security_type: TrustedLaunchSupported
+vm_size: Standard_D4ads_v6
 gallery:
   image_definition: imgdef-suse-15sp6-gen2
   publisher: dcassociatesgroup-com
   offer: slesservervmgen2
   sku: sles-15sp6-gen2
 test:
-  vm_size: Standard_D4s_v3
+  vm_size: Standard_D4ads_v6

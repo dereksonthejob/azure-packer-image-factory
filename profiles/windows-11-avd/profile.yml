@@ -1,13 +1,12 @@
 profile_id: windows-11-avd
 os_family: windows
-# Windows 11 Enterprise Multi-Session — Azure Virtual Desktop / VDI
-# Allows concurrent RDP sessions; exclusive to Azure (not available on-prem)
 source_image_urn: MicrosoftWindowsDesktop:windows-11:win11-24h2-avd:latest
 security_type: TrustedLaunchSupported
-
+vm_size: Standard_D4ads_v6
 gallery:
   image_definition: imgdef-windows-11-avd-gen2
-  publisher: DerekColeman
+  publisher: dcassociatesgroup-com
   offer: windows-11-avd
   sku: win11-24h2-avd
-vm_size: Standard_D4s_v4
+test:
+  vm_size: Standard_D4ads_v6
