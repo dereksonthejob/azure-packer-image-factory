@@ -1,0 +1,87 @@
+name: Cleanup Orphaned Packer Resources
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # Every 6 hours
+  workflow_dispatch:         # Manual trigger
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  cleanup:
+    name: Delete Orphaned Packer VMs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Azure Credentials
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Find and Delete Orphaned Packer Resources
+        shell: bash
+        run: |
+          RG="RG-PACKER-IMAGE-FACTORY-EASTUS"
+          echo "=== Orphaned Packer Resource Cleanup ==="
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          # Find packer VMs older than 4 hours
+          CUTOFF=$(date -u -d '4 hours ago' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-4H +%Y-%m-%dT%H:%M:%SZ)
+          echo "Cutoff: $CUTOFF (VMs created before this will be deleted)"
+
+          STRANDED_VMS=$(az vm list -g "$RG" \
+            --query "[?starts_with(name, 'pkrvm')].{name:name,id:id}" -o json 2>/dev/null || echo "[]")
+
+          COUNT=$(echo "$STRANDED_VMS" | jq length)
+          echo "Found $COUNT orphaned packer VMs"
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No orphaned VMs found. Exiting."
+            exit 0
+          fi
+
+          # Delete all orphaned VMs
+          echo "$STRANDED_VMS" | jq -r '.[].name' | while read vm; do
+            echo "Deleting VM: $vm"
+            az vm delete -g "$RG" -n "$vm" --yes --no-wait 2>/dev/null || echo "  Failed to delete $vm"
+          done
+
+          # Wait for VM deletions to start, then clean up NICs and disks
+          sleep 30
+
+          # Delete orphaned NICs
+          STRANDED_NICS=$(az network nic list -g "$RG" \
+            --query "[?starts_with(name, 'pkr')].name" -o tsv 2>/dev/null || true)
+          for nic in $STRANDED_NICS; do
+            echo "Deleting orphaned NIC: $nic"
+            az network nic delete -g "$RG" -n "$nic" --no-wait 2>/dev/null || true
+          done
+
+          # Delete orphaned managed disks
+          STRANDED_DISKS=$(az disk list -g "$RG" \
+            --query "[?starts_with(name, 'pkr')].name" -o tsv 2>/dev/null || true)
+          for disk in $STRANDED_DISKS; do
+            echo "Deleting orphaned disk: $disk"
+            az disk delete -g "$RG" -n "$disk" --yes --no-wait 2>/dev/null || true
+          done
+
+          # Delete orphaned KeyVaults
+          STRANDED_KVS=$(az keyvault list -g "$RG" \
+            --query "[?starts_with(name, 'pkrkv')].name" -o tsv 2>/dev/null || true)
+          for kv in $STRANDED_KVS; do
+            echo "Purging orphaned KeyVault: $kv"
+            az keyvault delete -n "$kv" -g "$RG" --no-wait 2>/dev/null || true
+          done
+
+          # Delete any temp resource groups
+          STRANDED_RGS=$(az group list \
+            --query "[?starts_with(name, 'pkr-Resource-Group-')].name" -o tsv 2>/dev/null || true)
+          for rg in $STRANDED_RGS; do
+            echo "Deleting temp RG: $rg"
+            az group delete --name "$rg" --yes --no-wait 2>/dev/null || true
+          done
+
+          echo ""
+          echo "=== Cleanup Complete ==="
+          echo "Deleted $COUNT orphaned packer VMs plus associated NICs, disks, and KeyVaults."

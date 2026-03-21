@@ -1,16 +1,8 @@
-name: Packer Build Image
+name: Global Matrix Packer Build
 
 on:
   workflow_dispatch:
     inputs:
-      profile_path:
-        description: 'Profile to build (e.g. profiles/ubuntu-server)'
-        required: true
-        type: string
-      os_version:
-        description: 'OS version key for concurrency (e.g. 24.04, 2025)'
-        required: true
-        type: string
       image_version:
         description: 'Image version (yyyy.mm.xx)'
         required: true
@@ -18,22 +10,101 @@ on:
       runs_on_pool:
         description: 'Runner pool to use'
         required: false
-        default: 'arc-packer-runners'
+        default: 'vmss'
+        type: string
+      profile_filter:
+        description: 'Regex filter for specific profiles (e.g. "windows|sql" or ".*")'
+        required: false
+        default: '.*'
+        type: string
+      max_parallel:
+        description: 'Max concurrent build jobs (reduce to 1 when quota is tight)'
+        required: false
+        default: '7'
         type: string
 
 permissions:
   id-token: write
   contents: read
 
-concurrency:
-  group: packer-${{ inputs.profile_path }}-${{ inputs.os_version }}
-  cancel-in-progress: false
-
 jobs:
+  discover-profiles:
+    name: Map Image Profiles
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          PROFILES=$(find profiles -name "profile.yml" -exec dirname {} \; | grep -iE "${{ inputs.profile_filter || '.*' }}" | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "Discovered Profiles: $PROFILES"
+          echo "matrix=$PROFILES" >> "$GITHUB_OUTPUT"
+
+  quota-preflight:
+    name: Azure vCPU Quota Pre-flight Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Azure Credentials
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Check Regional vCPU and ESv5 Quota
+        shell: bash
+        run: |
+          set -e
+          LOCATION="eastus"
+          # vCPUs consumed per job: most profiles use Standard_E4s_v5 = 4 vCPUs
+          # max-parallel is 4, so peak demand = 4 × 4 = 16 vCPUs
+          MAX_PARALLEL=7
+          VCPUS_PER_BUILD=4
+          REQUIRED=$((MAX_PARALLEL * VCPUS_PER_BUILD))
+
+          echo "=== Azure vCPU Quota Pre-flight Check ==="
+          echo "Location: $LOCATION | max-parallel: $MAX_PARALLEL | vCPUs/build: $VCPUS_PER_BUILD | Required: $REQUIRED"
+
+          QUOTA_JSON=$(az vm list-usage --location $LOCATION -o json)
+
+          REGIONAL_USED=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue=="Total Regional vCPUs") | .currentValue')
+          REGIONAL_LIMIT=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue=="Total Regional vCPUs") | .limit')
+          REGIONAL_AVAIL=$((REGIONAL_LIMIT - REGIONAL_USED))
+
+          DSV3_USED=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("DSv3")) | .currentValue' | head -1)
+          DSV3_LIMIT=$(echo "$QUOTA_JSON" | jq -r '.[] | select(.name.localizedValue | contains("DSv3")) | .limit' | head -1)
+          DSV3_AVAIL=$((DSV3_LIMIT - DSV3_USED))
+
+          echo "Regional vCPUs: $REGIONAL_USED used / $REGIONAL_LIMIT limit → $REGIONAL_AVAIL available"
+          echo "Standard DSv3  : $DSV3_USED used / $DSV3_LIMIT limit → $DSV3_AVAIL available"
+          echo "Required for this run: $REQUIRED vCPUs"
+
+          WARN=false
+          if [ "$REGIONAL_AVAIL" -lt "$REQUIRED" ]; then
+            echo "::warning ::QUOTA RISK: Only $REGIONAL_AVAIL Regional vCPUs available, need $REQUIRED. Builds may fail with quota errors."
+            WARN=true
+          fi
+          if [ "$DSV3_AVAIL" -lt "$REQUIRED" ]; then
+            echo "::warning ::QUOTA RISK: Only $DSV3_AVAIL DSv3 vCPUs available, need $REQUIRED. All profiles use Standard_D4s_v3."
+            WARN=true
+          fi
+
+          if [ "$WARN" = "true" ]; then
+            echo "::warning ::Consider reducing max-parallel or requesting a quota increase before running."
+          else
+            echo "Quota OK — sufficient headroom for $MAX_PARALLEL concurrent builds."
+          fi
+
   build:
-    name: Build and Publish Packer Image
-    runs-on: "${{ inputs.runs_on_pool || 'arc-packer-runners' }}"
-    timeout-minutes: 1440
+    name: Build Image ${{ matrix.profile }}
+    needs: [discover-profiles, quota-preflight]
+    runs-on: [self-hosted, vmss]
+    timeout-minutes: 210
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJson(inputs.max_parallel || '7') }}
+      matrix:
+        profile: ${{ fromJson(needs.discover-profiles.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +113,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          PROFILE_FILE="${{ inputs.profile_path }}/profile.yml"
+          PROFILE_FILE="${{ matrix.profile }}/profile.yml"
           if [[ ! -f "$PROFILE_FILE" ]]; then
             echo "Profile file missing at $PROFILE_FILE"
             exit 1
@@ -52,13 +123,12 @@ jobs:
           os_family="$(awk -F': ' '/^os_family:/{print $2; exit}' "$PROFILE_FILE")"
           source_urn="$(awk -F': ' '/^source_image_urn:/{print $2; exit}' "$PROFILE_FILE")"
           image_def="$(awk -F': ' '$1 ~ /image_definition/{print $2; exit}' "$PROFILE_FILE")"
-          sig_offer="$(awk -F': ' '$1 ~ /offer/{print $2; exit}' "$PROFILE_FILE")"
           sig_sku="$(awk -F': ' '$1 ~ /sku/{print $2; exit}' "$PROFILE_FILE")"
           vm_size="$(awk -F': ' '$1 ~ /vm_size/{print $2; exit}' "$PROFILE_FILE")"
           plan_pub="$(awk -F': ' '$1 ~ /plan_publisher/{print $2; exit}' "$PROFILE_FILE")"
           plan_offer="$(awk -F': ' '$1 ~ /plan_product/{print $2; exit}' "$PROFILE_FILE")"
           plan_sku="$(awk -F': ' '$1 ~ /plan_name/{print $2; exit}' "$PROFILE_FILE")"
-
+          
           IFS=':' read -r source_pub source_offer source_sku source_ver <<< "$source_urn"
 
           echo "os_family=$os_family" >> "$GITHUB_OUTPUT"
@@ -75,14 +145,27 @@ jobs:
           echo "temp_rg=rg-packer-temp-${profile_id}-${{ github.run_id }}" >> "$GITHUB_OUTPUT"
 
       - name: Ensure CLI Prerequisites
+        shell: bash
         run: |
           if ! command -v az &> /dev/null; then
-            echo "Installing Azure CLI locally using Python pip (rootless)..."
-            curl -sS https://bootstrap.pypa.io/get-pip.py | python3 - --user
-            export PATH="$HOME/.local/bin:$PATH"
-            python3 -m pip install --user azure-cli
-            echo "$HOME/.local/bin" >> $GITHUB_PATH
+            echo "Azure CLI not found — installing via non-interactive apt..."
+            # Use sudo -n (non-interactive, never prompt for password) so the step
+            # fails fast with a clear error if passwordless sudo is not configured,
+            # rather than hanging on a terminal password prompt.
+            export DEBIAN_FRONTEND=noninteractive
+            sudo -n apt-get update -qq
+            sudo -n apt-get install -y -qq ca-certificates curl apt-transport-https lsb-release gnupg
+            curl -sL https://packages.microsoft.com/keys/microsoft.asc \
+              | gpg --dearmor \
+              | sudo -n tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+            export AZ_REPO=$(lsb_release -cs)
+            echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" \
+              | sudo -n tee /etc/apt/sources.list.d/azure-cli.list
+            sudo -n apt-get update -qq
+            sudo -n DEBIAN_FRONTEND=noninteractive apt-get install azure-cli -y -qq
             az --version
+          else
+            echo "Azure CLI already present: $(az version -o tsv 2>/dev/null | head -1)"
           fi
 
       - name: Setup Azure Credentials
@@ -90,8 +173,16 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
+
       - name: Setup Packer
         uses: hashicorp/setup-packer@v3
+
+      - name: Cache Packer Plugins
+        uses: actions/cache@v4
+        with:
+          path: ~/.config/packer/plugins
+          key: packer-plugins-${{ runner.os }}-${{ hashFiles('packer/**/*.pkr.hcl') }}
+          restore-keys: packer-plugins-${{ runner.os }}-
 
       - name: Ensure Image Definition Exists
         shell: bash
@@ -126,13 +217,17 @@ jobs:
           else
             echo "Image definition $DEF_NAME already exists."
           fi
+
       - name: Packer Init and Build
+        id: packer
         shell: bash
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          PACKER_LOG: "1"
+          PACKER_LOG_PATH: "packer-debug.log"
         run: |
           set -e
           
@@ -175,24 +270,33 @@ jobs:
             -var "plan_info_product=${{ steps.profile.outputs.plan_product }}" \
             -var "plan_info_name=${{ steps.profile.outputs.plan_name }}" \
             "${EXTRA_VARS[@]}" \
-            "$TEMPLATE_FILE"
+            "$TEMPLATE_FILE" 2>&1 | tee packerbuild.log
 
-      - name: Post-deployment Security Checks
+      - name: Generate Patch Report
+        if: success() && steps.profile.outputs.os_family == 'windows'
         shell: bash
         run: |
-          set -e
-          echo "Running post-deployment mock security checks..."
-          if [[ "${{ steps.profile.outputs.os_family }}" == "windows" ]]; then
-             echo "Triggering PowerShell Windows check script on deployed VM."
-             # Pretend we are executing scripts/security-update-check-windows.ps1
+          chmod +x .github/scripts/generate-patch-report.sh
+          .github/scripts/generate-patch-report.sh \
+            "${{ steps.profile.outputs.profile_id }}" \
+            "packerbuild.log"
+
+      - name: Capture Build Failures
+        if: failure()
+        shell: bash
+        run: |
+          echo "Packer Build Failed for ${{ matrix.profile }}. Extracting error tail..."
+          mkdir -p evidence/failures
+          # Guard: packerbuild.log only exists if packer actually ran; skip gracefully if not
+          if [ -f packerbuild.log ]; then
+            tail -n 100 packerbuild.log > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
+            grep -i "error\|timeout\|failed\|winrm" packerbuild.log | tail -n 30 >> "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt" || true
           else
-             echo "Triggering Bash Linux check script on deployed VM."
-             # Pretend we are executing scripts/security-update-check-linux.sh
+            echo "packerbuild.log not found — build failed before packer started (pre-flight step failure)" \
+              > "evidence/failures/failed-${{ steps.profile.outputs.profile_id }}.txt"
           fi
-          
-          mkdir -p evidence/scans
-          echo "Security updates verified at $(date)" > evidence/scans/updates-installed.txt
-          echo "No pending reboots detected" > evidence/scans/pending-reboot-state.txt
+          # Copy debug log into evidence if it exists
+          [ -f packer-debug.log ] && cp packer-debug.log "evidence/failures/packer-debug-${{ steps.profile.outputs.profile_id }}.log" || true
 
       - name: Cleanup Stranded Packer Resources
         if: always()
@@ -229,33 +333,15 @@ jobs:
             az group delete --name "$rg" --yes --no-wait 2>/dev/null || true
           done
 
-      - name: Upload Artifacts
+      - name: Upload Build Evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: security-evidence-${{ steps.profile.outputs.profile_id }}
-          path: evidence/scans/
-          retention-days: 5
+          name: build-evidence-${{ steps.profile.outputs.profile_id }}
+          path: |
+            evidence/
+            packerbuild.log
+            packer-debug.log
+            patch-report/
+          retention-days: 7
 
-      - name: Send Email Notification
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.office365.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Packer Build ${{ job.status }}: ${{ steps.profile.outputs.profile_id }}"
-          to: "agent@dcassociatesgroup.com"
-          from: "GitHub Actions Automation <${{ secrets.MAIL_USERNAME }}>"
-          body: |
-            The Packer image build run has concluded.
-            
-            Status: ${{ job.status }}
-            Profile ID: ${{ steps.profile.outputs.profile_id }}
-            Image Version: ${{ inputs.image_version }}
-            Target Image Definition: ${{ steps.profile.outputs.image_definition }}
-            Target Compute Gallery: acgpackerfactoryeastus (Resource Group: RG-PACKER-IMAGE-FACTORY-EASTUS)
-            Target Region: eastus
-            
-            Link to complete logs: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
